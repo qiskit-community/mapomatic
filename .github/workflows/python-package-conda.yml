@@ -1,0 +1,30 @@
+name: Mapomatic using Conda
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        conda config --set always_yes yes --set changeps1 no
+        pip install -U -r requirements.txt
+        python setup.py install
+    - name: Lint with pylint and pycodestyle
+      run: |
+        pip install -U -r requirements-dev.txt
+        pylint -rn mapomatic
+        pycodestyle --max-line-length=100 mapomatic
