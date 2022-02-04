@@ -68,7 +68,7 @@ that returns a tuple with the target layout, system, and the computed error scor
 ([2, 1, 3, 5, 8], 'ibm_auckland', 0.09518597703355036)
 ```
 
-Alternatively, we can ask for the best mapping on all systems, yielding a list sorted in order from best to worse:
+You can then use the best layout in a new call to `transpile` which will then do the desired mapping for you.  Alternatively, we can ask for the best mapping on all systems, yielding a list sorted in order from best to worse:
 
 ```python
 
