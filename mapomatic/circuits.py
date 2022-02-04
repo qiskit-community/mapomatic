@@ -28,32 +28,36 @@ def deflate_circuit(input_circ):
         Requires a circuit with flatten qregs and cregs.
     """
     active_qubits = set([])
+    active_clbits = set([])
     for item in input_circ.data:
-        if item[0].name not in ['barrier']:
+        if item[0].name not in ["barrier"]:
             qubits = item[1]
             for qubit in qubits:
-                active_qubits.add(qubit._index)
+                active_qubits.add(qubit)
+            clbits = item[2]
+            for clbit in clbits:
+                active_clbits.add(clbit)
 
-    active_qubits = list(active_qubits)
     num_reduced_qubits = len(active_qubits)
-    num_meas_bits = len(input_circ.clbits)
+    num_reduced_clbits = len(active_clbits)
 
     active_map = {}
-    for idx, val in enumerate(active_qubits):
+    for idx, val in enumerate(
+        sorted(active_qubits, key=lambda x: input_circ.find_bit(x).index)
+    ):
+        active_map[val] = idx
+    for idx, val in enumerate(
+        sorted(active_clbits, key=lambda x: input_circ.find_bit(x).index)
+    ):
         active_map[val] = idx
 
-    new_qc = QuantumCircuit(num_reduced_qubits, num_meas_bits)
+    new_qc = QuantumCircuit(num_reduced_qubits, num_reduced_clbits)
     for item in input_circ.data:
-        args = []
-        if item[0].name not in ['barrier']:
+        if item[0].name not in ["barrier"]:
             ref = getattr(new_qc, item[0].name)
             params = item[0].params
-            if any(params):
-                args.extend([float(param) for param in params])
-            for qubit in item[1]:
-                args.append(active_map[qubit._index])
-            for meas in item[2]:
-                args.append(meas._index)
-            ref(*args)
+            qargs = [new_qc.qubits[active_map[qubit]] for qubit in item[1]]
+            cargs = [new_qc.clbits[active_map[qubit]] for clbit in item[2]]
+            ref(*params, *qargs, *cargs)
 
     return new_qc

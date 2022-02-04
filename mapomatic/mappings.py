@@ -148,12 +148,12 @@ def best_mapping(circ, backends, successors=False, call_limit=100):
                     fid = 1
                     for item in circ._data:
                         if item[0].name == 'cx':
-                            q0 = item[1][0]._index
-                            q1 = item[1][1]._index
+                            q0 = circ.find_bit(item[1][0]).index
+                            q1 = circ.find_bit(item[1][1]).index
                             fid *= (1-props.gate_error('cx', [vir_phys_layout[q0],
                                                               vir_phys_layout[q1]]))
                         if item[0].name == 'measure':
-                            q0 = item[1][0]._index
+                            q0 = circ.find_bit(item[1][0]).index
                             fid *= 1-props.readout_error(vir_phys_layout[q0])
                     error = 1-fid
                     if error < system_best_error:

@@ -11,8 +11,6 @@ One of the main painpoints in executing circuits on IBM Quantum hardware is find
 
 ## Usage
 
-> **IMPORTANT**: `mapomatic` currently works only on circuits with single quantum and classical registers
-
 To begin we first import what we need and load our IBM Quantum account.
 
 ```python
