@@ -16,6 +16,7 @@ Mapomatic tries to tackle these issues in a different way. Mapomatic is a post-c
 To begin we first import what we need and load our IBM Quantum account.
 
 ```python
+import numpy as np
 from qiskit import *
 import mapomatic as mm
 
@@ -94,3 +95,52 @@ mm.best_mapping(small_qc, backends, successors=True)
 ```
 
 Because of the stochastic nature of the SWAP mapping, the optimal sub-graph may change over repeated compilations.
+
+## Getting optimal results
+
+Because the SWAP mappers in Qiskit are stochastic, the number of inserted SWAP gates can vary with each run.  The spread in this number can be quite large, and can impact the performance of your circuit.  It is thus beneficial to `transpile` many instances of a circuit and take the best one.  For example:
+
+```python
+trans_qc_list = transpile([qc]*20, provider.get_backend('ibm_auckland'), optimization_level=3)
+
+best_cx_count = [circ.count_ops()['cx'] for circ in trans_qc_list]
+best_cx_count
+```
+
+```
+[10, 13, 10, 7, 7, 10, 10, 7, 10, 7, 10, 10, 10, 10, 5, 7, 6, 13, 7, 10]
+```
+
+We obviously want the one with minimum CNOT gates here:
+
+```python
+
+best_idx = np.where(best_cx_count == np.min(best_cx_count))[0][0]
+best_qc = trans_qc_list[best_idx] 
+```
+
+We can then use this best mapped circuit to find the ideal qubit candidates via `mapomatic`.
+
+```python
+best_small_qc = mm.deflate_circuit(best_qc)
+mm.best_mapping(best_small_qc, backends, successors=True)
+```
+
+```
+[([11, 13, 14, 16, 19], 'ibm_auckland', 0.07634155667667142),
+ ([2, 0, 1, 4, 7], 'ibm_hanoi', 0.0799012562006044),
+ ([4, 6, 5, 3, 1], 'ibm_lagos', 0.09374259142721897),
+ ([10, 15, 12, 13, 14], 'ibm_cairo', 0.0938958618334792),
+ ([5, 9, 8, 11, 14], 'ibmq_montreal', 0.09663069814643488),
+ ([10, 6, 7, 4, 1], 'ibmq_mumbai', 0.10253149958591112),
+ ([10, 15, 12, 13, 14], 'ibmq_guadalupe', 0.11075230351892806),
+ ([11, 5, 4, 3, 2], 'ibmq_brooklyn', 0.13179514610612808),
+ ([0, 2, 1, 3, 5], 'ibm_perth', 0.13309987649094324),
+ ([4, 6, 5, 3, 1], 'ibmq_casablanca', 0.13570907147053013),
+ ([2, 0, 1, 3, 5], 'ibmq_jakarta', 0.14449169384159954),
+ ([5, 9, 8, 11, 14], 'ibmq_toronto', 0.1495199193756318),
+ ([2, 0, 1, 3, 4], 'ibmq_quito', 0.16858894163955718),
+ ([0, 2, 1, 3, 4], 'ibmq_belem', 0.1783430267967986),
+ ([0, 2, 1, 3, 4], 'ibmq_lima', 0.20380730100751476),
+ ([23, 25, 24, 34, 43], 'ibm_washington', 0.23527393065514557)]
+```
