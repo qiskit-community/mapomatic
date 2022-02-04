@@ -29,6 +29,7 @@ VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 REQUIREMENTS = ['numpy>=1.17',
                 'qiskit-terra>=0.19',
+                'retworkx>0.10.2',
                ]
 
 PACKAGES = setuptools.find_namespace_packages()
