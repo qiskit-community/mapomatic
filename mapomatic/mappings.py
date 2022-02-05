@@ -96,7 +96,7 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
     layouts = []
     temp_sets = []
     for mapping in mappings:
-        # Here we sort in the order that we would use 
+        # Here we sort in the order that we would use
         # for intial layout
         temp_list = [None]*circ.num_qubits
         for cm_i, im_i in mapping.items():
@@ -132,7 +132,6 @@ def best_mapping(circ, backends, successors=False, call_limit=100):
     best_error = np.inf
     best_layout = None
     best_backend = None
-    initial_layout = None
     mappings = {}
     best_out = []
 
