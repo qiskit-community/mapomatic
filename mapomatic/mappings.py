@@ -94,9 +94,21 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
         call_limit=call_limit,
     )
     layouts = []
+    temp_sets = []
     for mapping in mappings:
-        layout = {qubits[im_i]: cm_nodes[cm_i] for cm_i, im_i in mapping.items()}
-        layouts.append(layout)
+        # Here we sort in the order that we would use 
+        # for intial layout
+        temp_list = [None]*circ.num_qubits
+        for cm_i, im_i in mapping.items():
+            key = qubits[im_i]
+            val = cm_nodes[cm_i]
+            temp_list[circ.find_bit(key).index] = val
+        temp_set = set(temp_list)
+        # VF2 returns lots of permutations of subgraphs
+        # If the set has already been added, do not add again
+        if temp_set not in temp_sets:
+            layouts.append(temp_list)
+            temp_sets.append(temp_set)
     return layouts
 
 
@@ -141,35 +153,30 @@ def best_mapping(circ, backends, successors=False, call_limit=100):
             system_best_error = np.inf
             if any(mappings[key]):
                 for mapping in mappings[key]:
-                    vir_phys_layout = {}
-                    for key, val in mapping.items():
-                        vir_phys_layout[key._index] = val
                     error = 0
                     fid = 1
                     for item in circ._data:
                         if item[0].name == 'cx':
                             q0 = circ.find_bit(item[1][0]).index
                             q1 = circ.find_bit(item[1][1]).index
-                            fid *= (1-props.gate_error('cx', [vir_phys_layout[q0],
-                                                              vir_phys_layout[q1]]))
+                            fid *= (1-props.gate_error('cx', [mapping[q0],
+                                                              mapping[q1]]))
                         if item[0].name == 'measure':
                             q0 = circ.find_bit(item[1][0]).index
-                            fid *= 1-props.readout_error(vir_phys_layout[q0])
+                            fid *= 1-props.readout_error(mapping[q0])
                     error = 1-fid
                     if error < system_best_error:
-                        system_best_layout = vir_phys_layout
+                        system_best_layout = mapping
                         system_best_error = error
                     if error < best_error:
                         best_error = error
-                        best_layout = vir_phys_layout
+                        best_layout = mapping
                         best_backend = backend_name
 
-                best_out.append(([system_best_layout[kk] for kk in range(len(vir_phys_layout))],
-                                backend_name, system_best_error))
+                best_out.append((system_best_layout, backend_name, system_best_error))
     if best_layout:
         if not successors:
-            initial_layout = [best_layout[kk] for kk in range(len(vir_phys_layout))]
-            return initial_layout, best_backend, best_error
+            return best_layout, best_backend, best_error
         best_out.sort(key=lambda x: x[2])
         return best_out
     return []
