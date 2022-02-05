@@ -9,8 +9,8 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Test best mappings"""
 
-import numpy as np
 import pytest
 from qiskit import transpile, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
