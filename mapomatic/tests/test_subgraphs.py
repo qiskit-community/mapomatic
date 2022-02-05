@@ -11,8 +11,7 @@
 # that they have been altered from the originals.
 """Test best mappings"""
 
-import pytest
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.test.mock import FakeMontreal
 
 import mapomatic as mm
