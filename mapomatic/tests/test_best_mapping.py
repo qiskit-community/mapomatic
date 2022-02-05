@@ -18,6 +18,7 @@ from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
 import mapomatic as mm
 
 def test_best_mapping_ghz_state_full_device_multiple_qregs():
+    """Test best mappings with multiple registers"""
     qr_a = QuantumRegister(2)
     qr_b = QuantumRegister(3)
     qc = QuantumCircuit(qr_a, qr_b)
@@ -42,6 +43,7 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
 
 
 def test_best_mapping_ghz_state_deflate_multiple_registers():
+    """Test best mappings with multiple registers with deflate"""
     qr_a = QuantumRegister(2)
     qr_b = QuantumRegister(2)
     cr_a = ClassicalRegister(2)
