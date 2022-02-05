@@ -17,8 +17,8 @@ from qiskit.test.mock import FakeMontreal
 import mapomatic as mm
 
 
-def test_test_find_all_subgraphs():
-    """Test that all unique subgraphs can be found"""
+def test_test_find_all_subsets():
+    """Test that all unique subset can be found"""
     qc = QuantumCircuit(4)
     qc.h(0)
     qc.cx(0, 1)
@@ -28,17 +28,18 @@ def test_test_find_all_subgraphs():
 
     backend = FakeMontreal()
     mappings = mm.mappings.exact_mappings(qc, backend.configuration().coupling_map)
+    unique_sets = mm.mappings.unique_subsets(mappings)    
 
-    assert len(mappings) == 7
+    assert len(unique_sets) == 8
 
-    ans_list = [[1, 2, 4, 0],
-                [7, 4, 10, 6],
-                [8, 5, 11, 9],
-                [12, 10, 13, 15],
-                [14, 11, 13, 16],
-                [18, 15, 21, 17],
-                [19, 16, 22, 20],
-                [25, 22, 24, 26]]
+    ans_list = [set([1, 2, 4, 0]),
+                set([7, 4, 10, 6]),
+                set([8, 5, 11, 9]),
+                set([12, 10, 13, 15]),
+                set([14, 11, 13, 16]),
+                set([18, 15, 21, 17]),
+                set([19, 16, 22, 20]),
+                set([25, 22, 24, 26])]
 
-    for mapping in mappings:
-        assert mapping in ans_list
+    for st in unique_sets:
+        assert st in ans_list

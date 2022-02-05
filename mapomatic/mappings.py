@@ -35,7 +35,7 @@ from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
 
 
-def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
+def exact_mappings(circ, cmap, strict_direction=False, call_limit=10000):
     """Find the exact mappings for a circuit onto a given topology (coupling map)
 
     Parameters:
@@ -106,7 +106,24 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
     return layouts
 
 
-def best_mapping(circ, backends, successors=False, call_limit=100):
+def unique_subsets(mappings):
+    """Unique subset of qubits in mappings.
+    
+    Parameters:
+        mappings (list): Collection of possible mappings
+    
+    Returns:
+        list: Unique sets of qubits
+    """
+    sets = []
+    for mapping in mappings:
+        temp = set(mapping)
+        if not temp in sets:
+            sets.append(temp)
+    return sets
+
+
+def best_mapping(circ, backends, successors=False, call_limit=10000):
     """Find the best selection of qubits and system to run
     the chosen circuit one.
 
