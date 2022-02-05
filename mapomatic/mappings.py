@@ -118,7 +118,7 @@ def unique_subsets(mappings):
     sets = []
     for mapping in mappings:
         temp = set(mapping)
-        if not temp in sets:
+        if temp not in sets:
             sets.append(temp)
     return sets
 
