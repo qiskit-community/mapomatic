@@ -94,7 +94,6 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
         call_limit=call_limit,
     )
     layouts = []
-    temp_sets = []
     for mapping in mappings:
         # Here we sort in the order that we would use
         # for intial layout
@@ -103,12 +102,7 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=100):
             key = qubits[im_i]
             val = cm_nodes[cm_i]
             temp_list[circ.find_bit(key).index] = val
-        temp_set = set(temp_list)
-        # VF2 returns lots of permutations of subgraphs
-        # If the set has already been added, do not add again
-        if temp_set not in temp_sets:
-            layouts.append(temp_list)
-            temp_sets.append(temp_set)
+        layouts.append(temp_list)
     return layouts
 
 
