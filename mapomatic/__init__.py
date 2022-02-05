@@ -28,5 +28,5 @@ def about():
     print('='*80)
     print('# Mapomatic version {}'.format(__version__))
     print('# (C) Copyright IBM 2022.')
-    print('# Paul Nation')
+    print('# Paul Nation and Matthew Treinish')
     print('='*80)
