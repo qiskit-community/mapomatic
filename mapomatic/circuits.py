@@ -57,7 +57,7 @@ def deflate_circuit(input_circ):
             ref = getattr(new_qc, item[0].name)
             params = item[0].params
             qargs = [new_qc.qubits[active_map[qubit]] for qubit in item[1]]
-            cargs = [new_qc.clbits[active_map[qubit]] for clbit in item[2]]
+            cargs = [new_qc.clbits[active_map[clbit]] for clbit in item[2]]
             ref(*params, *qargs, *cargs)
 
     return new_qc
