@@ -108,10 +108,10 @@ def exact_mappings(circ, cmap, strict_direction=False, call_limit=10000):
 
 def unique_subsets(mappings):
     """Unique subset of qubits in mappings.
-    
+
     Parameters:
         mappings (list): Collection of possible mappings
-    
+
     Returns:
         list: Unique sets of qubits
     """
