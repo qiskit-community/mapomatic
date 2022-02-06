@@ -177,9 +177,6 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000):
     if not isinstance(backends, list):
         backends = [backends]
 
-    best_error = np.inf
-    best_layout = None
-    best_backend = None
     layouts = {}
     best_out = []
 
@@ -187,7 +184,6 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000):
     for backend in backends:
         config = backend.configuration()
         num_qubits = config.num_qubits
-        backend_name = backend.name()
         if not config.simulator and circ_qubits <= num_qubits:
             seg = config.processor_type.get('segment', '')
             key = str(num_qubits)+seg
