@@ -27,9 +27,7 @@
 # that they have been altered from the originals.
 
 """Circuit manipulation tools"""
-from ftplib import error_proto
 import random
-import numpy as np
 
 from retworkx import PyGraph, PyDiGraph, vf2_mapping
 from qiskit.converters import circuit_to_dag
