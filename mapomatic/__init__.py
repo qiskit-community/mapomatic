@@ -19,7 +19,7 @@ except ImportError:
     __version__ = '0.0.0'
 
 from .circuits import deflate_circuit
-from .mappings import best_mapping
+from .layouts import (best_overall_layout, matching_layouts, evaluate_layouts)
 
 
 def about():

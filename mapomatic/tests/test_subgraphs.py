@@ -27,7 +27,7 @@ def test_test_find_all_subsets():
     qc.measure_all()
 
     backend = FakeMontreal()
-    mappings = mm.mappings.exact_mappings(qc, backend.configuration().coupling_map)
+    mappings = mm.matching_layouts(qc, backend.configuration().coupling_map)
     unique_sets = mm.mappings.unique_subsets(mappings)
 
     assert len(unique_sets) == 8

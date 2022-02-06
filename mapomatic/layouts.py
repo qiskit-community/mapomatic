@@ -27,6 +27,7 @@
 # that they have been altered from the originals.
 
 """Circuit manipulation tools"""
+from ftplib import error_proto
 import random
 import numpy as np
 
@@ -35,8 +36,8 @@ from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
 
 
-def exact_mappings(circ, cmap, strict_direction=False, call_limit=10000):
-    """Find the exact mappings for a circuit onto a given topology (coupling map)
+def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
+    """Matching for a circuit onto a given topology (coupling map)
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
@@ -123,7 +124,41 @@ def unique_subsets(mappings):
     return sets
 
 
-def best_mapping(circ, backends, successors=False, call_limit=10000):
+def evaluate_layouts(circ, layouts, backend):
+    """Evaluate the error rate of the layout on a backend
+
+    Parameters:
+        circ (QuantumCircuit): circuit of interest
+        layouts (list): Specified layouts
+        backend (IBMQBackend): An IBM Quantum backend instance
+
+    Returns:
+        list: Tuples of layouts and errors
+    """
+    # Make a single layout nested
+    if not isinstance(layouts[0], list):
+        layouts = [layouts]
+    out = []
+    props = backend.properties()
+    for layout in layouts:
+        error = 0
+        fid = 1
+        for item in circ._data:
+            if item[0].name == 'cx':
+                q0 = circ.find_bit(item[1][0]).index
+                q1 = circ.find_bit(item[1][1]).index
+                fid *= (1-props.gate_error('cx', [layout[q0],
+                                                  layout[q1]]))
+            if item[0].name == 'measure':
+                q0 = circ.find_bit(item[1][0]).index
+                fid *= 1-props.readout_error(layout[q0])
+        error = 1-fid
+        out.append((layout, error))
+    out.sort(key=lambda x: x[1])
+    return out
+
+
+def best_overall_layout(circ, backends, successors=False, call_limit=10000):
     """Find the best selection of qubits and system to run
     the chosen circuit one.
 
@@ -143,7 +178,7 @@ def best_mapping(circ, backends, successors=False, call_limit=10000):
     best_error = np.inf
     best_layout = None
     best_backend = None
-    mappings = {}
+    layouts = {}
     best_out = []
 
     circ_qubits = circ.num_qubits
@@ -151,42 +186,15 @@ def best_mapping(circ, backends, successors=False, call_limit=10000):
         config = backend.configuration()
         num_qubits = config.num_qubits
         backend_name = backend.name()
-
         if not config.simulator and circ_qubits <= num_qubits:
             seg = config.processor_type.get('segment', '')
             key = str(num_qubits)+seg
-            if key not in mappings:
-                mappings[key] = exact_mappings(circ, config.coupling_map,
-                                               call_limit=call_limit)
-            props = backend.properties()
-            system_best_layout = None
-            system_best_error = np.inf
-            if any(mappings[key]):
-                for mapping in mappings[key]:
-                    error = 0
-                    fid = 1
-                    for item in circ._data:
-                        if item[0].name == 'cx':
-                            q0 = circ.find_bit(item[1][0]).index
-                            q1 = circ.find_bit(item[1][1]).index
-                            fid *= (1-props.gate_error('cx', [mapping[q0],
-                                                              mapping[q1]]))
-                        if item[0].name == 'measure':
-                            q0 = circ.find_bit(item[1][0]).index
-                            fid *= 1-props.readout_error(mapping[q0])
-                    error = 1-fid
-                    if error < system_best_error:
-                        system_best_layout = mapping
-                        system_best_error = error
-                    if error < best_error:
-                        best_error = error
-                        best_layout = mapping
-                        best_backend = backend_name
-
-                best_out.append((system_best_layout, backend_name, system_best_error))
-    if best_layout:
-        if not successors:
-            return best_layout, best_backend, best_error
-        best_out.sort(key=lambda x: x[2])
-        return best_out
-    return []
+            if key not in layouts:
+                layouts[key] = matching_layouts(circ, config.coupling_map,
+                                                call_limit=call_limit)
+            layout, error = evaluate_layouts(circ, layouts[key], backend)[0]
+            best_out.append((layout, backend.name(), error))
+    best_out.sort(key=lambda x: x[2])
+    if not successors:
+        return best_out[0]
+    return best_out
