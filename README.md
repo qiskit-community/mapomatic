@@ -8,7 +8,6 @@ One of the main painpoints in executing circuits on IBM Quantum hardware is find
 
 `mapomatic` tries to tackle these issues in a different way. `mapomatic` is a post-compilation routine that finds the best low noise sub-graph on which to run a circuit given one or more quantum systems as target devices.  Once compiled, a circuit has been rewritten so that its two-qubit gate structure matches that of a given sub-graph on the target system.  `mapomatic` then searches for matching sub-graphs using the VF2 mapper in [Qiskit](https://github.com/Qiskit/qiskit-terra) ([retworkx](https://github.com/Qiskit/retworkx) actually), and uses a heuristic to rank them based on error rates determined by the current calibration data. That is to say that given a single target system, `mapomatic` will return the best set of qubits on which to execute the compiled circuit.  Or, given a list of systems, it will find the best system and set of qubits on which to run your circuit.  Given the current size of quantum hardware, and the excellent performance of the VF2 mapper, this whole process is actually very fast.
 
-
 ## Usage
 
 To begin we first import what we need and load our IBM Quantum account.
@@ -57,39 +56,36 @@ This deflated circuit, along with one or more backends can now be used to find t
 ```python
 backends = provider.backends()
 
-mm.best_mapping(small_qc, backends)
+mm.best_overall_layout(small_qc, backends)
 ```
 
 that returns a tuple with the target layout, system, and the computed error score:
 
-```
-([2, 1, 3, 5, 8], 'ibm_auckland', 0.09518597703355036)
+```python
+([5, 3, 2, 1, 0, 4], 'ibm_hanoi', 0.08603879221106037)
 ```
 
 You can then use the best layout in a new call to `transpile` which will then do the desired mapping for you.  Alternatively, we can ask for the best mapping on all systems, yielding a list sorted in order from best to worse:
 
 ```python
 
-mm.best_mapping(small_qc, backends, successors=True)
+mm.best_overall_layout(small_qc, backends, successors=True)
 ```
 
-```
-[([2, 1, 3, 5, 8], 'ibm_auckland', 0.09518597703355036),
- ([7, 10, 4, 1, 0], 'ibm_hanoi', 0.11217956761629977),
- ([5, 6, 3, 1, 2], 'ibm_lagos', 0.1123755285308975),
- ([7, 6, 10, 12, 15], 'ibmq_mumbai', 0.13708593236124922),
- ([3, 2, 5, 8, 9], 'ibmq_montreal', 0.13762962991865924),
- ([2, 1, 3, 5, 8], 'ibm_cairo', 0.1423752001642351),
- ([1, 2, 3, 5, 6], 'ibmq_casablanca', 0.15623594190953083),
- ([4, 3, 5, 6, 7], 'ibmq_brooklyn', 0.16468576058762707),
- ([7, 6, 10, 12, 15], 'ibmq_guadalupe', 0.17186581811649904),
- ([5, 3, 8, 11, 14], 'ibmq_toronto', 0.1735555283027388),
- ([5, 4, 3, 1, 0], 'ibmq_jakarta', 0.1792325518776976),
- ([2, 3, 1, 0, 14], 'ibm_washington', 0.2078576175452339),
- ([1, 0, 2, 3, 4], 'ibmq_bogota', 0.23973220166838316),
- ([1, 2, 3, 5, 6], 'ibm_perth', 0.31268969778002176),
- ([3, 4, 2, 1, 0], 'ibmq_manila', 0.3182338194159915),
- ([1, 0, 2, 3, 4], 'ibmq_santiago', 1.0)]
+```python
+[([5, 3, 2, 1, 0, 4], 'ibm_hanoi', 0.08603879221106037),
+ ([36, 51, 50, 49, 48, 55], 'ibm_washington', 0.09150102196508092),
+ ([21, 23, 24, 25, 22, 26], 'ibm_auckland', 0.09666750964284976),
+ ([5, 8, 11, 14, 16, 13], 'ibmq_montreal', 0.1010191806180305),
+ ([21, 23, 24, 25, 22, 26], 'ibm_cairo', 0.10310508869235013),
+ ([6, 5, 3, 1, 0, 2], 'ibm_lagos', 0.10806691390621592),
+ ([16, 19, 22, 25, 24, 26], 'ibmq_mumbai', 0.11927719515976587),
+ ([24, 25, 22, 19, 20, 16], 'ibmq_toronto', 0.13724935147063222),
+ ([24, 29, 30, 31, 32, 39], 'ibmq_brooklyn', 0.1537915794715058),
+ ([13, 14, 11, 8, 5, 9], 'ibmq_guadalupe', 0.1575476343119544),
+ ([4, 5, 3, 1, 0, 2], 'ibmq_casablanca', 0.17901628434617056),
+ ([6, 5, 3, 1, 0, 2], 'ibm_perth', 0.18024603271960626),
+ ([4, 5, 3, 1, 2, 0], 'ibmq_jakarta', 0.1874412047495625)]
 ```
 
 Because of the stochastic nature of the SWAP mapping, the optimal sub-graph may change over repeated compilations.
@@ -105,8 +101,8 @@ best_cx_count = [circ.count_ops()['cx'] for circ in trans_qc_list]
 best_cx_count
 ```
 
-```
-[10, 13, 10, 7, 7, 10, 10, 7, 10, 7, 10, 10, 10, 10, 5, 7, 6, 13, 7, 10]
+```python
+[10, 6, 10, 7, 10, 11, 8, 8, 8, 10, 8, 13, 10, 7, 10, 5, 8, 10, 7, 11]
 ```
 
 We obviously want the one with minimum CNOT gates here:
@@ -121,24 +117,24 @@ We can then use this best mapped circuit to find the ideal qubit candidates via 
 
 ```python
 best_small_qc = mm.deflate_circuit(best_qc)
-mm.best_mapping(best_small_qc, backends, successors=True)
+mm.best_overall_layout(best_small_qc, backends, successors=True)
 ```
 
-```
-[([11, 13, 14, 16, 19], 'ibm_auckland', 0.07634155667667142),
- ([2, 0, 1, 4, 7], 'ibm_hanoi', 0.0799012562006044),
- ([4, 6, 5, 3, 1], 'ibm_lagos', 0.09374259142721897),
- ([10, 15, 12, 13, 14], 'ibm_cairo', 0.0938958618334792),
- ([5, 9, 8, 11, 14], 'ibmq_montreal', 0.09663069814643488),
- ([10, 6, 7, 4, 1], 'ibmq_mumbai', 0.10253149958591112),
- ([10, 15, 12, 13, 14], 'ibmq_guadalupe', 0.11075230351892806),
- ([11, 5, 4, 3, 2], 'ibmq_brooklyn', 0.13179514610612808),
- ([0, 2, 1, 3, 5], 'ibm_perth', 0.13309987649094324),
- ([4, 6, 5, 3, 1], 'ibmq_casablanca', 0.13570907147053013),
- ([2, 0, 1, 3, 5], 'ibmq_jakarta', 0.14449169384159954),
- ([5, 9, 8, 11, 14], 'ibmq_toronto', 0.1495199193756318),
- ([2, 0, 1, 3, 4], 'ibmq_quito', 0.16858894163955718),
- ([0, 2, 1, 3, 4], 'ibmq_belem', 0.1783430267967986),
- ([0, 2, 1, 3, 4], 'ibmq_lima', 0.20380730100751476),
- ([23, 25, 24, 34, 43], 'ibm_washington', 0.23527393065514557)]
+```python
+[([3, 2, 4, 1, 0], 'ibm_hanoi', 0.07011500213196731),
+ ([51, 50, 48, 49, 55], 'ibm_washington', 0.07499096356285917),
+ ([14, 11, 5, 8, 9], 'ibmq_montreal', 0.08633597995021536),
+ ([3, 5, 11, 8, 9], 'ibm_auckland', 0.0905845988548658),
+ ([5, 3, 0, 1, 2], 'ibm_lagos', 0.09341441561338637),
+ ([23, 24, 22, 25, 26], 'ibm_cairo', 0.09368920161042149),
+ ([19, 22, 24, 25, 26], 'ibmq_mumbai', 0.10338126987554686),
+ ([25, 22, 16, 19, 20], 'ibmq_toronto', 0.12110219482337559),
+ ([5, 3, 0, 1, 2], 'ibm_perth', 0.1283276775628739),
+ ([14, 13, 15, 12, 10], 'ibmq_guadalupe', 0.12860835365491008),
+ ([13, 14, 24, 15, 16], 'ibmq_brooklyn', 0.13081072372091407),
+ ([5, 3, 0, 1, 2], 'ibmq_jakarta', 0.14268582212594894),
+ ([5, 3, 0, 1, 2], 'ibmq_casablanca', 0.15103780612586304),
+ ([4, 3, 0, 1, 2], 'ibmq_belem', 0.1574210243350943),
+ ([4, 3, 0, 1, 2], 'ibmq_quito', 0.18349713324910477),
+ ([4, 3, 0, 1, 2], 'ibmq_lima', 0.1977398974865432)]
 ```

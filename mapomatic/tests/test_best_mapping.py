@@ -31,7 +31,7 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
     qc.measure_all()
     trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
-    res = mm.best_mapping(trans_qc, backends, successors=True)
+    res = mm.best_overall_layout(trans_qc, backends, successors=True)
     expected_res = [
         ([0, 1, 2, 3, 4], 'fake_lima', 0.294),
         ([0, 1, 2, 3, 4], 'fake_belem', 0.309),
@@ -59,7 +59,7 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
     trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
     small_circ = mm.deflate_circuit(trans_qc)
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
-    res = mm.best_mapping(small_circ, backends, successors=True)
+    res = mm.best_overall_layout(small_circ, backends, successors=True)
     expected_res = [
         ([3, 1, 0, 2], 'fake_lima', 0.146),
         ([3, 1, 0, 2], 'fake_belem', 0.187),
