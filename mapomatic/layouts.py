@@ -135,10 +135,12 @@ def evaluate_layouts(circ, layouts, backend):
     Returns:
         list: Tuples of layouts and errors
     """
-    # Make a single layout nested
+    if not any(layouts):
+        return []
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     out = []
+    # Make a single layout nested
     props = backend.properties()
     for layout in layouts:
         error = 0
@@ -192,9 +194,12 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000):
             if key not in layouts:
                 layouts[key] = matching_layouts(circ, config.coupling_map,
                                                 call_limit=call_limit)
-            layout, error = evaluate_layouts(circ, layouts[key], backend)[0]
-            best_out.append((layout, backend.name(), error))
+            layout_and_error = evaluate_layouts(circ, layouts[key], backend)
+            if any(layout_and_error):
+                layout = layout_and_error[0][0]
+                error = layout_and_error[0][1]
+                best_out.append((layout, backend.name(), error))
     best_out.sort(key=lambda x: x[2])
-    if not successors:
-        return best_out[0]
-    return best_out
+    if successors:
+        return best_out
+    return best_out[0]
