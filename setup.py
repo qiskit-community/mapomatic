@@ -27,9 +27,12 @@ MICRO = 0
 ISRELEASED = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
-REQUIREMENTS = ['qiskit-terra>=0.19',
-                'retworkx>0.10.2',
-               ]
+REQUIREMENTS = []
+with open("requirements.txt") as f:
+    for line in f:
+        req = line.split('#')[0]
+        if req:
+            REQUIREMENTS.append(req)
 
 PACKAGES = setuptools.find_namespace_packages()
 PACKAGE_DATA = {
@@ -147,10 +150,10 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
     ],
     cmdclass={'lint': PylintCommand, 'style': StyleCommand},
