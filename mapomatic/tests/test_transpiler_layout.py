@@ -21,7 +21,7 @@ import mapomatic as mm
 def test_layouts_transpile():
     """Solution layouts preserve circuit ops"""
     backend = FakeMontreal()
-    qv_circ = QuantumVolume(5)
+    qv_circ = QuantumVolume(5, seed=12345)
     trans_qc = transpile(qv_circ, backend, optimization_level=3)
     small_qc = mm.deflate_circuit(trans_qc)
     ans_ops = small_qc.count_ops()
