@@ -135,30 +135,32 @@ def evaluate_layouts(circ, layouts, backend):
     """
     if not any(layouts):
         return []
+    # Make a single layout nested
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     out = []
-    # Make a single layout nested
+    dag = circuit_to_dag(circ)
+    num_qubits = circ.num_qubits
+    denom = (1-4**num_qubits)
     props = backend.properties()
     for layout in layouts:
-        error = 0
-        fid = 1
-        for item in circ._data:
-            if item[0].name == 'cx':
-                q0 = circ.find_bit(item[1][0]).index
-                q1 = circ.find_bit(item[1][1]).index
-                fid *= (1-props.gate_error('cx', [layout[q0],
-                                                  layout[q1]]))
-
-            elif item[0].name in ['sx', 'x']:
-                q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(layout[q0])
-
-            elif item[0].name == 'measure':
-                q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(layout[q0])
-        error = 1-fid
-        out.append((layout, error))
+        total_fid = 1
+        for layer in dag.layers():
+            layer_fid = 1
+            for op in layer['graph'].op_nodes():
+                if op.name == 'cx':
+                    q0 = circ.find_bit(op.qargs[0]).index
+                    q1 = circ.find_bit(op.qargs[1]).index
+                    layer_fid *= (1-props.gate_error('cx', [layout[q0],
+                                                            layout[q1]]))
+                elif op.name in ['sx', 'x']:
+                    q0 = circ.find_bit(op.qargs[0]).index
+                    layer_fid *= 1-props.readout_error(layout[q0])
+                elif op.name == 'measure':
+                    q0 = circ.find_bit(op.qargs[0]).index
+                    layer_fid *= 1-props.readout_error(layout[q0])
+            total_fid *= (1-4**num_qubits*layer_fid) / denom
+        out.append((layout, 1-total_fid))
     out.sort(key=lambda x: x[1])
     return out
 
