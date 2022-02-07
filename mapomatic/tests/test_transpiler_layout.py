@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Test layouts in transpile"""
 
-from qiskit import *
+from qiskit import transpile
 from qiskit.test.mock import FakeMontreal
 from qiskit.circuit.library import QuantumVolume
 
