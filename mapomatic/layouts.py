@@ -159,7 +159,7 @@ def evaluate_layouts(circ, layouts, backend):
                 elif op.name == 'measure':
                     q0 = circ.find_bit(op.qargs[0]).index
                     layer_fid *= 1-props.readout_error(layout[q0])
-            total_fid *= (1-4**num_qubits*layer_fid)/denom
+            total_fid *= (1-4**num_qubits*layer_fid) / denom
         out.append((layout, 1-total_fid))
     out.sort(key=lambda x: x[1])
     return out
