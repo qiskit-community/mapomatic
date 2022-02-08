@@ -61,9 +61,9 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(small_circ, backends, successors=True)
     expected_res = [
-        ([0, 1, 3, 2], 'fake_lima', 0.161),
-        ([3, 1, 0, 2], 'fake_belem', 0.207),
-        ([2, 1, 3, 0], 'fake_quito', 0.351)
+        ([3, 1, 0, 2], 'fake_lima', 0.161),
+        ([0, 1, 3, 2], 'fake_belem', 0.207),
+        ([3, 1, 2, 0], 'fake_quito', 0.350)
     ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
