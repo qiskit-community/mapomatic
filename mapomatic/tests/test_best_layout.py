@@ -37,8 +37,8 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
         ([2, 1, 0, 3, 4], 'fake_quito', 0.5360875795095078)
     ]
     for index, expected in enumerate(expected_res):
-        assert np.allclose(res[index][0], expected[0])
-        assert np.allclose(res[index][1], expected[1])
+        assert res[index][0] == expected[0]
+        assert res[index][1] == expected[1]
         assert np.allclose(res[index][2], expected[2])
 
 
@@ -65,6 +65,6 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
         ([3, 1, 2, 0], 'fake_quito', 0.3202504720264385)
     ]
     for index, expected in enumerate(expected_res):
-        assert np.allclose(res[index][0], expected[0])
-        assert np.allclose(res[index][1], expected[1])
+        assert res[index][0] == expected[0]
+        assert res[index][1] == expected[1]
         assert np.allclose(res[index][2], expected[2])
