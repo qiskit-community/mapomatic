@@ -10,8 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Test best mappings"""
-
-import pytest
+import numpy as np
 from qiskit import transpile, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
 
@@ -33,14 +32,14 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(trans_qc, backends, successors=True)
     expected_res = [
-        ([0, 1, 2, 3, 4], 'fake_belem', 0.324),
-        ([0, 1, 2, 3, 4], 'fake_lima', 0.335),
-        ([2, 1, 0, 3, 4], 'fake_quito', 0.550)
+        ([0, 1, 2, 3, 4], 'fake_lima', 0.2948138379010775),
+        ([0, 1, 2, 3, 4], 'fake_belem', 0.3099503939385677),
+        ([2, 1, 0, 3, 4], 'fake_quito', 0.5360875795095078)
     ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
-        assert res[index][2] == pytest.approx(expected[2], 0.01)
+        assert np.allclose(res[index][2], expected[2])
 
 
 def test_best_mapping_ghz_state_deflate_multiple_registers():
@@ -61,11 +60,11 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(small_circ, backends, successors=True)
     expected_res = [
-        ([3, 1, 0, 2], 'fake_lima', 0.161),
-        ([0, 1, 3, 2], 'fake_belem', 0.207),
-        ([3, 1, 2, 0], 'fake_quito', 0.350)
+        ([3, 1, 0, 2], 'fake_lima', 0.1466490604029853),
+        ([0, 1, 3, 2], 'fake_belem', 0.18757249682201993),
+        ([3, 1, 2, 0], 'fake_quito', 0.3202504720264385)
     ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
-        assert res[index][2] == pytest.approx(expected[2], 0.01)
+        assert np.allclose(res[index][2], expected[2])

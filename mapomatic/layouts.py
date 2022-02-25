@@ -152,7 +152,7 @@ def evaluate_layouts(circ, layouts, backend):
 
             elif item[0].name in ['sx', 'x']:
                 q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(layout[q0])
+                fid *= 1-props.gate_error(item[0].name, layout[q0])
 
             elif item[0].name == 'measure':
                 q0 = circ.find_bit(item[1][0]).index
