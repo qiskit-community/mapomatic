@@ -32,9 +32,9 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(trans_qc, backends, successors=True)
     expected_res = [
-        [([2, 1, 0, 3, 4], 'fake_belem', 0.4150109526706456),
-         ([0, 1, 2, 3, 4], 'fake_lima', 0.46177764990686654),
-         ([2, 1, 0, 3, 4], 'fake_quito', 0.6335024069223241)]
+        ([2, 1, 0, 3, 4], 'fake_belem', 0.4150109526706456),
+        ([0, 1, 2, 3, 4], 'fake_lima', 0.46177764990686654),
+        ([2, 1, 0, 3, 4], 'fake_quito', 0.6335024069223241)
     ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
