@@ -28,6 +28,7 @@
 
 """Circuit manipulation tools"""
 import random
+from math import exp
 
 from retworkx import PyGraph, PyDiGraph, vf2_mapping
 from qiskit.converters import circuit_to_dag
@@ -39,13 +40,15 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list): Coupling map
+        cmap (list or IBMQBackend): Coupling map or backend containing coupling map
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
     Returns:
         list: Found mappings.
     """
+    if not isinstance(cmap, list):
+        cmap = cmap.configuration().coupling_map
     dag = circuit_to_dag(circ)
     qubits = dag.qubits
     qubit_indices = {qubit: index for index, qubit in enumerate(qubits)}
@@ -140,6 +143,10 @@ def evaluate_layouts(circ, layouts, backend):
     out = []
     # Make a single layout nested
     props = backend.properties()
+    dt = backend.configuration().dt
+    num_qubits = backend.configuration().num_qubits
+    t1s = [props.qubit_property(qq, 'T1')[0] for qq in range(num_qubits)]
+    t2s = [props.qubit_property(qq, 'T2')[0] for qq in range(num_qubits)]
     for layout in layouts:
         error = 0
         fid = 1
@@ -157,6 +164,13 @@ def evaluate_layouts(circ, layouts, backend):
             elif item[0].name == 'measure':
                 q0 = circ.find_bit(item[1][0]).index
                 fid *= 1-props.readout_error(layout[q0])
+                
+            elif item[0].name == 'delay':
+                q0 = circ.find_bit(item[1][0]).index
+                time = item[0].duration * dt
+                qubit = layout[q0]
+                fid *= 1-_idle_error(time, t1s[qubit], t2s[qubit])
+                
         error = 1-fid
         out.append((layout, error))
     out.sort(key=lambda x: x[1])
@@ -202,3 +216,23 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000):
     if successors:
         return best_out
     return best_out[0]
+
+
+def _idle_error(time, t1, t2):
+    """Compute the approx. idle error from T1 and T2
+    
+    Parameters:
+        time (float): Delay time in sec
+        t1 (float): T1 time in sec
+        t2, (float): T2 time in sec
+    
+    Returns:
+        float: Idle error
+    """
+    if t2 > t1:
+        t2 = t1
+    rate1 = 1/t1
+    rate2 = 1/t2
+    p_reset = 1-exp(-time*rate1)
+    p_z = (1-p_reset)*(1-exp(-time*(rate2-rate1)))/2
+    return p_z + p_reset
