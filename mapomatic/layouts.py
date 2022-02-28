@@ -150,7 +150,7 @@ def evaluate_layouts(circ, layouts, backend):
     t1s = [props.qubit_property(qq, 'T1')[0] for qq in range(num_qubits)]
     t2s = [props.qubit_property(qq, 'T2')[0] for qq in range(num_qubits)]
     for layout in layouts:
-        sch_circ = transpile(circ, backend, initial_layout = layout,
+        sch_circ = transpile(circ, backend, initial_layout=layout,
                              optimization_level=0, scheduling_method='alap')
         error = 0
         fid = 1
