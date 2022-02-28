@@ -27,10 +27,12 @@
 # that they have been altered from the originals.
 
 """Circuit manipulation tools"""
+from pickletools import optimize
 import random
 from math import exp
 
 from retworkx import PyGraph, PyDiGraph, vf2_mapping
+from qiskit.compiler import transpile
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
 
@@ -141,6 +143,7 @@ def evaluate_layouts(circ, layouts, backend):
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     out = []
+
     # Make a single layout nested
     props = backend.properties()
     dt = backend.configuration().dt
@@ -148,28 +151,28 @@ def evaluate_layouts(circ, layouts, backend):
     t1s = [props.qubit_property(qq, 'T1')[0] for qq in range(num_qubits)]
     t2s = [props.qubit_property(qq, 'T2')[0] for qq in range(num_qubits)]
     for layout in layouts:
+        sch_circ = transpile(circ, backend, initial_layout = layout,
+                             optimization_level=0, scheduling_method='alap')
         error = 0
         fid = 1
-        for item in circ._data:
+        for item in sch_circ._data:
             if item[0].name == 'cx':
-                q0 = circ.find_bit(item[1][0]).index
-                q1 = circ.find_bit(item[1][1]).index
-                fid *= (1-props.gate_error('cx', [layout[q0],
-                                                  layout[q1]]))
+                q0 = sch_circ.find_bit(item[1][0]).index
+                q1 = sch_circ.find_bit(item[1][1]).index
+                fid *= (1-props.gate_error('cx', [q0, q1]))
 
             elif item[0].name in ['sx', 'x']:
-                q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.gate_error(item[0].name, layout[q0])
+                q0 = sch_circ.find_bit(item[1][0]).index
+                fid *= 1-props.gate_error(item[0].name, q0)
 
             elif item[0].name == 'measure':
-                q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(layout[q0])
+                q0 = sch_circ.find_bit(item[1][0]).index
+                fid *= 1-props.readout_error(q0)
 
             elif item[0].name == 'delay':
-                q0 = circ.find_bit(item[1][0]).index
+                q0 = sch_circ.find_bit(item[1][0]).index
                 time = item[0].duration * dt
-                qubit = layout[q0]
-                fid *= 1-_idle_error(time, t1s[qubit], t2s[qubit])
+                fid *= 1-_idle_error(time, t1s[q0], t2s[q0])
 
         error = 1-fid
         out.append((layout, error))
