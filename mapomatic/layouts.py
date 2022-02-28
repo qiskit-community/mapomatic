@@ -27,7 +27,6 @@
 # that they have been altered from the originals.
 
 """Circuit manipulation tools"""
-from pickletools import optimize
 import random
 from math import exp
 
