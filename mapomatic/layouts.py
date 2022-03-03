@@ -141,6 +141,7 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     if cost_function is None:
         cost_function = default_cost
     out = cost_function(circ, layouts, backend)
+    out.sort(key=lambda x: x[1])
     return out
 
 
@@ -200,7 +201,7 @@ def default_cost(circ, layouts, backend):
         backend (IBMQBackend): An IBM Quantum backend instance
 
     Returns:
-        list: Tuples of layouts, backend name, and errors
+        list: Tuples of layout and error
     """
     out = []
     # Make a single layout nested
@@ -224,5 +225,4 @@ def default_cost(circ, layouts, backend):
                 fid *= 1-props.readout_error(layout[q0])
         error = 1-fid
         out.append((layout, error))
-    out.sort(key=lambda x: x[1])
     return out
