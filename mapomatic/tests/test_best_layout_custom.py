@@ -75,7 +75,7 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
 def cost_func(circ, layouts, backend):
     """
     A custom cost function that includes T1 and T2 computed during idle periods
-    
+
     Parameters:
         circ (QuantumCircuit): circuit of interest
         layouts (list of lists): List of specified layouts
@@ -133,7 +133,7 @@ def idle_error(time, t1, t2):
     Parameters:
         time (float): Delay time in sec
         t1 (float): T1 time in sec
-        t2, (float): T2 time in sec
+        t2 (float): T2 time in sec
     Returns:
         float: Idle error
     """
