@@ -139,8 +139,8 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     if cost_function is None:
-        cost_func = default_cost
-    out = cost_func(circ, layouts, backend)
+        cost_function = default_cost
+    out = cost_function(circ, layouts, backend)
     return out
 
 
@@ -163,7 +163,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost
         backends = [backends]
 
     if cost_function is None:
-        cost_func = default_cost
+        cost_function = default_cost
 
     layouts = {}
     best_out = []
@@ -179,7 +179,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost
                 layouts[key] = matching_layouts(circ, config.coupling_map,
                                                 call_limit=call_limit)
             layout_and_error = evaluate_layouts(circ, layouts[key], backend,
-                                                cost_function=cost_func)
+                                                cost_function=cost_function)
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
                 error = layout_and_error[0][1]
