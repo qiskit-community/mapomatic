@@ -17,55 +17,24 @@ from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
 import mapomatic as mm
 
 
-def test_best_mapping_ghz_state_full_device_multiple_qregs():
-    """Test best mappings with multiple registers"""
-    qr_a = QuantumRegister(2)
-    qr_b = QuantumRegister(3)
-    qc = QuantumCircuit(qr_a, qr_b)
-    qc.h(qr_a[0])
-    qc.cx(qr_a[0], qr_a[1])
-    qc.cx(qr_a[0], qr_b[0])
-    qc.cx(qr_a[0], qr_b[1])
-    qc.cx(qr_a[0], qr_b[2])
+def test_custom_cost_function():
+    """Test custom cost functions work"""
+    qc = QuantumCircuit(3)
+    qc.h(0)
+    qc.cx(0,1)
+    qc.cx(0,2)
     qc.measure_all()
-    trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
+
+    trans_qc = transpile(qc, FakeBelem(), seed_transpiler=1234)
+    small_qc = mm.deflate_circuit(trans_qc)
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
-    res = mm.best_overall_layout(trans_qc, backends, successors=True,
+    res = mm.best_overall_layout(small_qc, backends, successors=True,
                                  cost_function=cost_func)
     expected_res = [
-        ([2, 1, 0, 3, 4], 'fake_belem', 0.4150109526706456),
-        ([0, 1, 2, 3, 4], 'fake_lima', 0.46177764990686654),
-        ([2, 1, 0, 3, 4], 'fake_quito', 0.6335024069223241)
-    ]
-    for index, expected in enumerate(expected_res):
-        assert res[index][0] == expected[0]
-        assert res[index][1] == expected[1]
-        assert np.allclose(res[index][2], expected[2])
-
-
-def test_best_mapping_ghz_state_deflate_multiple_registers():
-    """Test best mappings with multiple registers with deflate"""
-    qr_a = QuantumRegister(2)
-    qr_b = QuantumRegister(2)
-    cr_a = ClassicalRegister(2)
-    cr_b = ClassicalRegister(2)
-    qc = QuantumCircuit(qr_a, qr_b, cr_a, cr_b)
-    qc.h(qr_a[0])
-    qc.cx(qr_a[0], qr_a[1])
-    qc.cx(qr_a[0], qr_b[0])
-    qc.cx(qr_a[0], qr_b[1])
-    qc.measure(qr_a, cr_b)
-    qc.measure(qr_b, cr_a)
-    trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
-    small_circ = mm.deflate_circuit(trans_qc)
-    backends = [FakeBelem(), FakeQuito(), FakeLima()]
-    res = mm.best_overall_layout(small_circ, backends, successors=True,
-                                 cost_function=cost_func)
-    expected_res = [
-        ([3, 1, 0, 2], 'fake_lima', 0.16555704545051042),
-        ([3, 1, 0, 2], 'fake_belem', 0.21497431066677175),
-        ([3, 1, 2, 0], 'fake_quito', 0.35663459001880293)
-    ]
+                    ([3, 1, 0], 'fake_lima', 0.16209248467419868),
+                    ([3, 1, 0], 'fake_belem', 0.19277653702222508),
+                    ([3, 1, 0], 'fake_quito', 0.2999498671292371)
+                   ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
