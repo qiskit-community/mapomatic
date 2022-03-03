@@ -198,7 +198,7 @@ def cost_func(circ, layouts, backend):
 
         error = 1-fid
         out.append((layout, error))
-        return out
+    return out
 
 
 def idle_error(time, t1, t2):
