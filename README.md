@@ -138,3 +138,109 @@ mm.best_overall_layout(best_small_qc, backends, successors=True)
  ([4, 3, 0, 1, 2], 'ibmq_quito', 0.18349713324910477),
  ([4, 3, 0, 1, 2], 'ibmq_lima', 0.1977398974865432)]
 ```
+
+## Custom cost functions
+
+You can define a custom cost function in the following manner
+
+```python
+
+def cost_func(circ, layouts, backend):
+    """
+    A custom cost function that includes T1 and T2 computed during idle periods
+    
+    Parameters:
+        circ (QuantumCircuit): circuit of interest
+        layouts (list of lists): List of specified layouts
+        backend (IBMQBackend): An IBM Quantum backend instance
+
+    Returns:
+        list: Tuples of layout and cost
+    """
+    out = []
+    props = backend.properties()
+    dt = backend.configuration().dt
+    num_qubits = backend.configuration().num_qubits
+    t1s = [props.qubit_property(qq, 'T1')[0] for qq in range(num_qubits)]
+    t2s = [props.qubit_property(qq, 'T2')[0] for qq in range(num_qubits)]
+    for layout in layouts:
+        sch_circ = transpile(circ, backend, initial_layout=layout,
+                             optimization_level=0, scheduling_method='alap')
+        error = 0
+        fid = 1
+        touched = set()
+        for item in sch_circ._data:
+            if item[0].name == 'cx':
+                q0 = sch_circ.find_bit(item[1][0]).index
+                q1 = sch_circ.find_bit(item[1][1]).index
+                fid *= (1-props.gate_error('cx', [q0, q1]))
+                touched.add(q0)
+                touched.add(q1)
+
+            elif item[0].name in ['sx', 'x']:
+                q0 = sch_circ.find_bit(item[1][0]).index
+                fid *= 1-props.gate_error(item[0].name, q0)
+                touched.add(q0)
+
+            elif item[0].name == 'measure':
+                q0 = sch_circ.find_bit(item[1][0]).index
+                fid *= 1-props.readout_error(q0)
+                touched.add(q0)
+
+            elif item[0].name == 'delay':
+                q0 = sch_circ.find_bit(item[1][0]).index
+                # Ignore delays that occur before gates
+                # This assumes you are in ground state and errors
+                # do not occur.
+                if q0 in touched:
+                    time = item[0].duration * dt
+                    fid *= 1-idle_error(time, t1s[q0], t2s[q0])
+
+        error = 1-fid
+        out.append((layout, error))
+        return out
+
+
+def idle_error(time, t1, t2):
+    """Compute the approx. idle error from T1 and T2
+    Parameters:
+        time (float): Delay time in sec
+        t1 (float): T1 time in sec
+        t2, (float): T2 time in sec
+    Returns:
+        float: Idle error
+    """
+    t2 = min(t1, t2)
+    rate1 = 1/t1
+    rate2 = 1/t2
+    p_reset = 1-np.exp(-time*rate1)
+    p_z = (1-p_reset)*(1-np.exp(-time*(rate2-rate1)))/2
+    return p_z + p_reset
+```
+
+You can then pass this to the layout evaluation steps:
+
+```python
+
+mm.best_overall_layout(small_qc, backends, successors=True, cost_function=cost_func)
+```
+
+```python
+
+[([4, 0, 1, 2, 3], 'ibm_hanoi', 0.1058869747468042),
+ ([0, 2, 1, 3, 5], 'ibm_lagos', 0.15241444774632107),
+ ([0, 2, 1, 3, 5], 'ibm_perth', 0.16302150717418362),
+ ([0, 2, 1, 3, 5], 'ibmq_casablanca', 0.18228556142682584),
+ ([4, 0, 1, 2, 3], 'ibmq_mumbai', 0.19314785746073515),
+ ([0, 2, 1, 3, 4], 'ibmq_quito', 0.20388545685291504),
+ ([4, 0, 1, 2, 3], 'ibmq_montreal', 0.20954722547784943),
+ ([0, 2, 1, 3, 4], 'ibmq_belem', 0.22163468736634484),
+ ([5, 11, 4, 3, 2], 'ibmq_brooklyn', 0.23161086629870287),
+ ([0, 2, 1, 3, 5], 'ibmq_jakarta', 0.23215575814258282),
+ ([4, 0, 1, 2, 3], 'ibm_auckland', 0.2448657847182769),
+ ([4, 0, 1, 2, 3], 'ibmq_guadalupe', 0.3104200973685135),
+ ([0, 2, 1, 3, 4], 'ibmq_lima', 0.31936325970774426),
+ ([5, 15, 4, 3, 2], 'ibm_washington', 0.35009793314185045),
+ ([4, 0, 1, 2, 3], 'ibmq_toronto', 0.39020468922200047),
+ ([4, 0, 1, 2, 3], 'ibm_cairo', 0.4133587550267118)]
+ ```

@@ -122,21 +122,87 @@ def unique_subsets(mappings):
     return sets
 
 
-def evaluate_layouts(circ, layouts, backend):
+def evaluate_layouts(circ, layouts, backend, cost_function=None):
     """Evaluate the error rate of the layout on a backend
 
     Parameters:
         circ (QuantumCircuit): circuit of interest
         layouts (list): Specified layouts
         backend (IBMQBackend): An IBM Quantum backend instance
+        cost_function (callable): Custom cost function, default=None
 
     Returns:
-        list: Tuples of layouts and errors
+        list: Tuples of layout, backend name, and cost
     """
     if not any(layouts):
         return []
     if not isinstance(layouts[0], list):
         layouts = [layouts]
+    if cost_function is None:
+        cost_function = default_cost
+    out = cost_function(circ, layouts, backend)
+    out.sort(key=lambda x: x[1])
+    return out
+
+
+def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost_function=None):
+    """Find the best selection of qubits and system to run
+    the chosen circuit one.
+
+    Parameters:
+        circ (QuantumCircuit): Quantum circuit
+        backends (IBMQBackend or list): A single or list of backends.
+        successors (bool): Return list best mappings per backend passed.
+        call_limit (int): Maximum number of calls to VF2 mapper.
+        cost_function (callable): Custom cost function, default=None
+
+    Returns:
+        tuple: (best_layout, best_backend, best_error)
+        list: List of tuples for best match for each backend
+    """
+    if not isinstance(backends, list):
+        backends = [backends]
+
+    if cost_function is None:
+        cost_function = default_cost
+
+    layouts = {}
+    best_out = []
+
+    circ_qubits = circ.num_qubits
+    for backend in backends:
+        config = backend.configuration()
+        num_qubits = config.num_qubits
+        if not config.simulator and circ_qubits <= num_qubits:
+            seg = config.processor_type.get('segment', '')
+            key = str(num_qubits)+seg
+            if key not in layouts:
+                layouts[key] = matching_layouts(circ, config.coupling_map,
+                                                call_limit=call_limit)
+            layout_and_error = evaluate_layouts(circ, layouts[key], backend,
+                                                cost_function=cost_function)
+            if any(layout_and_error):
+                layout = layout_and_error[0][0]
+                error = layout_and_error[0][1]
+                best_out.append((layout, backend.name(), error))
+    best_out.sort(key=lambda x: x[2])
+    if successors:
+        return best_out
+    return best_out[0]
+
+
+def default_cost(circ, layouts, backend):
+    """The default mapomatic cost function that returns the total
+    error rate over all the layouts for the gates in the given circuit
+
+    Parameters:
+        circ (QuantumCircuit): circuit of interest
+        layouts (list of lists): List of specified layouts
+        backend (IBMQBackend): An IBM Quantum backend instance
+
+    Returns:
+        list: Tuples of layout and error
+    """
     out = []
     # Make a single layout nested
     props = backend.properties()
@@ -159,46 +225,4 @@ def evaluate_layouts(circ, layouts, backend):
                 fid *= 1-props.readout_error(layout[q0])
         error = 1-fid
         out.append((layout, error))
-    out.sort(key=lambda x: x[1])
     return out
-
-
-def best_overall_layout(circ, backends, successors=False, call_limit=10000):
-    """Find the best selection of qubits and system to run
-    the chosen circuit one.
-
-    Parameters:
-        circ (QuantumCircuit): Quantum circuit
-        backends (IBMQBackend or list): A single or list of backends.
-        successors (bool): Return list best mappings per backend passed.
-        call_limit (int): Maximum number of calls to VF2 mapper.
-
-    Returns:
-        tuple: (best_layout, best_backend, best_error)
-        list: List of tuples for best match for each backend
-    """
-    if not isinstance(backends, list):
-        backends = [backends]
-
-    layouts = {}
-    best_out = []
-
-    circ_qubits = circ.num_qubits
-    for backend in backends:
-        config = backend.configuration()
-        num_qubits = config.num_qubits
-        if not config.simulator and circ_qubits <= num_qubits:
-            seg = config.processor_type.get('segment', '')
-            key = str(num_qubits)+seg
-            if key not in layouts:
-                layouts[key] = matching_layouts(circ, config.coupling_map,
-                                                call_limit=call_limit)
-            layout_and_error = evaluate_layouts(circ, layouts[key], backend)
-            if any(layout_and_error):
-                layout = layout_and_error[0][0]
-                error = layout_and_error[0][1]
-                best_out.append((layout, backend.name(), error))
-    best_out.sort(key=lambda x: x[2])
-    if successors:
-        return best_out
-    return best_out[0]
