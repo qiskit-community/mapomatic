@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Test best mappings"""
 import numpy as np
-from qiskit import transpile, QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit import transpile, QuantumCircuit
 from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
 
 import mapomatic as mm
