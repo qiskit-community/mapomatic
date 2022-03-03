@@ -132,14 +132,14 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
         cost_function (callable): Custom cost function, default=None
 
     Returns:
-        list: Tuples of layouts, backend name, and errors
+        list: Tuples of layout, backend name, and cost
     """
     if not any(layouts):
         return []
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     if cost_function is None:
-       cost_func = default_cost
+        cost_func = default_cost
     out = cost_func(circ, layouts, backend)
     return out
 
@@ -163,7 +163,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost
         backends = [backends]
 
     if cost_function is None:
-       cost_func = default_cost
+        cost_func = default_cost
 
     layouts = {}
     best_out = []
@@ -178,7 +178,8 @@ def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost
             if key not in layouts:
                 layouts[key] = matching_layouts(circ, config.coupling_map,
                                                 call_limit=call_limit)
-            layout_and_error = evaluate_layouts(circ, layouts[key], backend, cost_function=cost_func)
+            layout_and_error = evaluate_layouts(circ, layouts[key], backend,
+                                                cost_function=cost_func)
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
                 error = layout_and_error[0][1]
@@ -195,7 +196,7 @@ def default_cost(circ, layouts, backend):
 
     Parameters:
         circ (QuantumCircuit): circuit of interest
-        layouts (list): Specified layouts
+        layouts (list of lists): List of specified layouts
         backend (IBMQBackend): An IBM Quantum backend instance
 
     Returns:
