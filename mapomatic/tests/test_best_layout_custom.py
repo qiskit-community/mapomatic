@@ -21,8 +21,8 @@ def test_custom_cost_function():
     """Test custom cost functions work"""
     qc = QuantumCircuit(3)
     qc.h(0)
-    qc.cx(0,1)
-    qc.cx(0,2)
+    qc.cx(0, 1)
+    qc.cx(0, 2)
     qc.measure_all()
 
     trans_qc = transpile(qc, FakeBelem(), seed_transpiler=1234)
