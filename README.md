@@ -42,7 +42,8 @@ qc.measure_all()
 Here we use `optimization_level=3` as it is the best overall.  It is also not noise-aware though, and thus can select lousy qubits on which to do a good SWAP mapping
 
 ```python
-trans_qc = transpile(qc, provider.get_backend('ibm_auckland'),optimization_level=3)
+backend = provider.get_backend('ibm_auckland')
+trans_qc = transpile(qc, backend, optimization_level=3)
 ```
 
 Now, a call to `transpile` inflates the circuit to the number of qubits in the target system.  For small problems like the example here, this prevents us from finding the smaller sub-graphs.  Thus we need to deflate the circuit down to just the number of active qubits:
@@ -51,7 +52,85 @@ Now, a call to `transpile` inflates the circuit to the number of qubits in the t
 small_qc = mm.deflate_circuit(trans_qc)
 ```
 
-This deflated circuit, along with one or more backends can now be used to find the ideal system and mapping.  Here we will look over all systems in the provider:
+We can now find all the matching subgraphs of the target backend onto which the deflated circuit fits:
+
+```python
+
+layouts = mm.matching_layouts(small_qc, backend)
+```
+
+returning a list of possible layouts:
+
+```python
+[[3, 2, 0, 1, 4, 7],
+ [7, 4, 0, 1, 2, 3],
+ [1, 4, 6, 7, 10, 12],
+ [12, 10, 6, 7, 4, 1],
+ [3, 5, 9, 8, 11, 14],
+ [14, 11, 9, 8, 5, 3],
+ [7, 10, 15, 12, 13, 14],
+ [7, 10, 13, 12, 15, 18],
+ [14, 13, 15, 12, 10, 7],
+ [14, 13, 10, 12, 15, 18],
+ [18, 15, 13, 12, 10, 7],
+ [18, 15, 10, 12, 13, 14],
+ [8, 11, 16, 14, 13, 12],
+ [8, 11, 13, 14, 16, 19],
+ [12, 13, 16, 14, 11, 8],
+ [12, 13, 11, 14, 16, 19],
+ [19, 16, 13, 14, 11, 8],
+ [19, 16, 11, 14, 13, 12],
+ [12, 15, 17, 18, 21, 23],
+ [23, 21, 17, 18, 15, 12],
+ [14, 16, 20, 19, 22, 25],
+ [25, 22, 20, 19, 16, 14],
+ [19, 22, 26, 25, 24, 23],
+ [23, 24, 26, 25, 22, 19]]
+```
+
+We can then evaluate the "cost" of each layout, by default just the total error rate from gate and readout errors, to find a good candidate:
+
+```python
+scores = mm.evaluate_layouts(small_qc, layouts, backend)
+```
+
+```python
+
+[([3, 5, 9, 8, 11, 14], 0.1409544035570952),
+ ([3, 2, 0, 1, 4, 7], 0.159886911767115),
+ ([14, 11, 9, 8, 5, 3], 0.16797160130080224),
+ ([19, 16, 13, 14, 11, 8], 0.1825119371865237),
+ ([8, 11, 13, 14, 16, 19], 0.18331648549982482),
+ ([7, 4, 0, 1, 2, 3], 0.19124485963881122),
+ ([23, 24, 26, 25, 22, 19], 0.19226855309761348),
+ ([25, 22, 20, 19, 16, 14], 0.19228399510047922),
+ ([19, 22, 26, 25, 24, 23], 0.2000625493093675),
+ ([14, 16, 20, 19, 22, 25], 0.20604403000055715),
+ ([8, 11, 16, 14, 13, 12], 0.2580131332633393),
+ ([12, 13, 16, 14, 11, 8], 0.27134706745983517),
+ ([19, 16, 11, 14, 13, 12], 0.2755049869801992),
+ ([12, 13, 11, 14, 16, 19], 0.2879346238104463),
+ ([14, 13, 15, 12, 10, 7], 0.3474625243348848),
+ ([1, 4, 6, 7, 10, 12], 0.34887580284018227),
+ ([18, 15, 10, 12, 13, 14], 0.35020374737523874),
+ ([7, 10, 15, 12, 13, 14], 0.35023196005467194),
+ ([12, 10, 6, 7, 4, 1], 0.3628988750928549),
+ ([18, 15, 13, 12, 10, 7], 0.39637978849009425),
+ ([14, 13, 10, 12, 15, 18], 0.4063300698900274),
+ ([23, 21, 17, 18, 15, 12], 0.41564717799937645),
+ ([12, 15, 17, 18, 21, 23], 0.43370673744503807),
+ ([7, 10, 13, 12, 15, 18], 0.4472384837396254)]
+```
+
+The return layouts and costs are sorted from lowest to highest. You can then use the best layout in a new call to `transpile` 
+which will then do the desired mapping for you:
+
+```python
+best_qc = transpile(small_qc, backend, initial_layout=scores[0][0])
+```
+
+
+Alternatively, it is possible to do the same computation over multiple systems, eg all systems in the provider:
 
 ```python
 backends = provider.backends()
@@ -59,13 +138,13 @@ backends = provider.backends()
 mm.best_overall_layout(small_qc, backends)
 ```
 
-that returns a tuple with the target layout, system, and the computed error score:
+that returns a tuple with the target layout, system name, and the computed cost:
 
 ```python
 ([5, 3, 2, 1, 0, 4], 'ibm_hanoi', 0.08603879221106037)
 ```
 
-You can then use the best layout in a new call to `transpile` which will then do the desired mapping for you.  Alternatively, we can ask for the best mapping on all systems, yielding a list sorted in order from best to worse:
+Alternatively, we can ask for the best mapping on all systems, yielding a list sorted in order from best to worse:
 
 ```python
 
