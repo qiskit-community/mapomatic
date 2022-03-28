@@ -39,13 +39,18 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list): Coupling map
+        cmap (list or IBMQBackend): Coupling map or backend instance
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
     Returns:
         list: Found mappings.
     """
+    if isinstance(cmap, list):
+        cmap = CouplingMap(cmap)
+    else:
+        cmap = CouplingMap(cmap.configuration().coupling_map)
+
     dag = circuit_to_dag(circ)
     qubits = dag.qubits
     qubit_indices = {qubit: index for index, qubit in enumerate(qubits)}
@@ -55,7 +60,7 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
         len_args = len(node.qargs)
         if len_args == 2:
             interactions.append((qubit_indices[node.qargs[0]], qubit_indices[node.qargs[1]]))
-    cmap = CouplingMap(cmap)
+
     if strict_direction:
         cm_graph = cmap.graph
         im_graph = PyDiGraph(multigraph=False)
