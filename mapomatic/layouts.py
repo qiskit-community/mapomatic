@@ -46,6 +46,9 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
 
     Returns:
         list: Found mappings.
+
+    Raises:
+        TypeError: Invalid type passed to cmap
     """
     if isinstance(cmap, list):
         cmap = CouplingMap(cmap)
