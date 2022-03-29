@@ -52,6 +52,8 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
     """
     if isinstance(cmap, list):
         cmap = CouplingMap(cmap)
+    elif isinstance(cmap, CouplingMap):
+        pass
     elif isinstance(cmap, BackendV1):
         cmap = CouplingMap(cmap.configuration().coupling_map)
     elif isinstance(cmap, BackendV2):
