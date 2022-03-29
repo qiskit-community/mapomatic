@@ -40,7 +40,7 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list or BackendV1 or BackendV2): Coupling map or backend instance
+        cmap (list or CouplingMap or BackendV1 or BackendV2): Coupling map or backend instance
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
