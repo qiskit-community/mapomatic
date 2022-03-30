@@ -12,7 +12,7 @@
 """Test best mappings"""
 
 from qiskit import QuantumCircuit
-from qiskit.test.mock import FakeMontreal
+from qiskit.test.mock import FakeMontreal, FakeMumbaiV2
 
 import mapomatic as mm
 
@@ -29,4 +29,19 @@ def test_matching_layout_backend_pass():
     backend = FakeMontreal()
     mappings1 = mm.matching_layouts(qc, backend)
     mappings2 = mm.matching_layouts(qc, backend.configuration().coupling_map)
+    assert mappings1 == mappings2
+
+
+def test_matching_layout_backend_v2():
+    """Test that I can pass a BackendV2 to matching layouts"""
+    qc = QuantumCircuit(4)
+    qc.h(0)
+    qc.cx(0, 1)
+    qc.cx(0, 2)
+    qc.cx(0, 3)
+    qc.measure_all()
+
+    backend = FakeMumbaiV2()
+    mappings1 = mm.matching_layouts(qc, backend)
+    mappings2 = mm.matching_layouts(qc, backend.coupling_map)
     assert mappings1 == mappings2

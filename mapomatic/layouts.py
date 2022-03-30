@@ -32,6 +32,7 @@ import random
 from retworkx import PyGraph, PyDiGraph, vf2_mapping
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
+from qiskit.providers.backend import BackendV1, BackendV2
 
 
 def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
@@ -39,17 +40,26 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list or IBMQBackend): Coupling map or backend instance
+        cmap (list or CouplingMap or BackendV1 or BackendV2): Coupling map or backend instance
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
     Returns:
         list: Found mappings.
+
+    Raises:
+        TypeError: Invalid type passed to cmap
     """
     if isinstance(cmap, list):
         cmap = CouplingMap(cmap)
-    else:
+    elif isinstance(cmap, CouplingMap):
+        pass
+    elif isinstance(cmap, BackendV1):
         cmap = CouplingMap(cmap.configuration().coupling_map)
+    elif isinstance(cmap, BackendV2):
+        cmap = cmap.coupling_map
+    else:
+        raise TypeError('Invalid cmap input.')
 
     dag = circuit_to_dag(circ)
     qubits = dag.qubits
