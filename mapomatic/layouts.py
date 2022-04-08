@@ -88,16 +88,12 @@ def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
         shuffled_cm_graph.add_edges_from_no_data(new_edges)
         cm_nodes = [k for k, v in sorted(enumerate(cm_nodes), key=lambda item: item[1])]
         cm_graph = shuffled_cm_graph
-
-    im_graph.add_nodes_from(range(len(qubits)))
-    im_graph.add_edges_from_no_data(interactions)
-    # To avoid trying to over optimize the result by default limit the number
-    # of trials based on the size of the graphs. For circuits with simple layouts
-    # like an all 1q circuit we don't want to sit forever trying every possible
-    # mapping in the search space
-    # im_graph_edge_count = len(im_graph.edge_list())
-    # cm_graph_edge_count = len(cm_graph.edge_list())
-    # max_trials = max(im_graph_edge_count, cm_graph_edge_count) + 15
+    # Extend will create nodes for any qubits with a 2q gate
+    # along with any missing nodes in the node indicies in the list
+    im_graph.extend_from_edge_list(interactions)
+    # If we're missing qubits with only 1q gates add those
+    if len(im_graph) < len(qubits):
+        im_graph.add_nodes_from(range(len(im_graph), len(qubits)))
 
     mappings = vf2_mapping(
         cm_graph,
