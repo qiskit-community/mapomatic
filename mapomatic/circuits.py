@@ -27,16 +27,7 @@ def deflate_circuit(input_circ):
     Notes:
         Requires a circuit with flatten qregs and cregs.
     """
-    active_qubits = set([])
-    active_clbits = set([])
-    for item in input_circ.data:
-        if item[0].name not in ["barrier", "delay"]:
-            qubits = item[1]
-            for qubit in qubits:
-                active_qubits.add(qubit)
-            clbits = item[2]
-            for clbit in clbits:
-                active_clbits.add(clbit)
+    active_qubits, active_clbits = active_bits(input_circ)
 
     num_reduced_qubits = len(active_qubits)
     num_reduced_clbits = len(active_clbits)
@@ -61,3 +52,28 @@ def deflate_circuit(input_circ):
             ref(*params, *qargs, *cargs)
 
     return new_qc
+
+def active_bits(input_circ):
+    """Find active bits (quantum and classical) in a transpiled circuit.
+
+    Parameters:
+        input_circ (QuantumCircuit): Input circuit.
+
+    Returns:
+        tuple: Tuple of sets for active qubits and active classical bits
+
+    Notes:
+        Requires a circuit with flatten qregs and cregs.
+    """
+    active_qubits = set([])
+    active_clbits = set([])
+    for item in input_circ.data:
+        if item[0].name not in ["barrier", "delay"]:
+            qubits = item[1]
+            for qubit in qubits:
+                active_qubits.add(qubit)
+            clbits = item[2]
+            for clbit in clbits:
+                active_clbits.add(clbit)
+
+    return active_qubits, active_clbits
