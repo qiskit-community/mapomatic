@@ -35,7 +35,7 @@ from qiskit.transpiler.coupling import CouplingMap
 from qiskit.providers.backend import BackendV1, BackendV2
 
 
-def matching_layouts(circ, cmap, strict_direction=False, call_limit=10000):
+def matching_layouts(circ, cmap, strict_direction=False, call_limit=100000):
     """Matching for a circuit onto a given topology (coupling map)
 
     Parameters:
