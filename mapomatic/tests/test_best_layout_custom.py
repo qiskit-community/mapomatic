@@ -30,11 +30,9 @@ def test_custom_cost_function():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(small_qc, backends, successors=True,
                                  cost_function=cost_func)
-    expected_res = [
-                    ([3, 1, 0], 'fake_lima', 0.16209248467419868),
-                    ([3, 1, 0], 'fake_belem', 0.19277653702222508),
-                    ([3, 1, 0], 'fake_quito', 0.2999498671292371)
-                   ]
+    expected_res = [([3, 1, 0], 'fake_lima', 0.11830389787680795),
+                    ([3, 1, 0], 'fake_belem', 0.14358751944450088),
+                    ([3, 1, 0], 'fake_quito', 0.18092141250599547)]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
