@@ -53,6 +53,7 @@ def deflate_circuit(input_circ):
 
     return new_qc
 
+
 def active_bits(input_circ):
     """Find active bits (quantum and classical) in a transpiled circuit.
 
