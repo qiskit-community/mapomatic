@@ -18,7 +18,7 @@ try:
 except ImportError:
     __version__ = '0.0.0'
 
-from .circuits import deflate_circuit
+from .circuits import (deflate_circuit, active_bits)
 from .layouts import (best_overall_layout, matching_layouts, evaluate_layouts)
 
 
