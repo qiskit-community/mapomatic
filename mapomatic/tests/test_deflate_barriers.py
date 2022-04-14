@@ -24,9 +24,9 @@ def test_deflate_barriers1():
     qc = QuantumCircuit(10)
     qc.h(0)
     qc.barrier(0)
-    qc.cx(0,1)
-    qc.cx(1,2)
-    qc.cx(2,3)
+    qc.cx(0, 1)
+    qc.cx(1, 2)
+    qc.cx(2, 3)
     qc.barrier()
 
     trans_qc = transpile(qc, BACKEND)
@@ -37,9 +37,9 @@ def test_deflate_barriers1():
     ans_qc.sx(0)
     ans_qc.rz(np.pi/2, 0)
     ans_qc.barrier(0)
-    ans_qc.cx(0,1)
-    ans_qc.cx(1,2)
-    ans_qc.cx(2,3)
+    ans_qc.cx(0, 1)
+    ans_qc.cx(1, 2)
+    ans_qc.cx(2, 3)
     ans_qc.barrier()
 
     assert small_qc == ans_qc
