@@ -15,7 +15,6 @@ import numpy as np
 from qiskit import QuantumCircuit, transpile
 from qiskit.test.mock import FakeMontreal
 
-
 import mapomatic as mm
 
 BACKEND = FakeMontreal()
@@ -66,4 +65,6 @@ def test_deflate_barriers3():
     trans_qc = transpile(qc, BACKEND)
     small_qc = mm.deflate_circuit(trans_qc)
 
-    assert small_qc == qc
+    qc_with_meas = qc.measure_all(inplace=False)
+
+    assert small_qc == qc_with_meas
