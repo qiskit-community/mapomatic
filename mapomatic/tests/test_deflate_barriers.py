@@ -59,7 +59,7 @@ def test_deflate_barriers2():
 
 
 def test_deflate_barriers3():
-    """Test that measure_all subset returns itself"""
+    """Test that measure_all subset returns itself (with a slight creg name change)"""
     qc = QuantumCircuit(10)
     qc.measure_all()
 
