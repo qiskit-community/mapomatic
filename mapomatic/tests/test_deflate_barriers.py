@@ -65,7 +65,7 @@ def test_deflate_barriers3():
 
     trans_qc = transpile(qc, BACKEND)
     small_qc = mm.deflate_circuit(trans_qc)
-    
+
     qr = QuantumRegister(10, 'q')
     qc = ClassicalRegister(10, 'c')
     ans_qc = QuantumCircuit(qr, qc)
