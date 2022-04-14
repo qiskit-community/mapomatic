@@ -19,6 +19,7 @@ import mapomatic as mm
 
 BACKEND = FakeMontreal()
 
+
 def test_deflate_barriers1():
     """I can properly deflate with final barrier over all qubits"""
     qc = QuantumCircuit(10)
