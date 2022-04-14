@@ -12,7 +12,7 @@
 """Test preserving barriers in deflation"""
 
 import numpy as np
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
 from qiskit.test.mock import FakeMontreal
 
 import mapomatic as mm
@@ -65,7 +65,11 @@ def test_deflate_barriers3():
 
     trans_qc = transpile(qc, BACKEND)
     small_qc = mm.deflate_circuit(trans_qc)
+    
+    qr = QuantumRegister(10, 'q')
+    qc = ClassicalRegister(10, 'c')
+    ans_qc = QuantumCircuit(qr, qc)
+    ans_qc.barrier()
+    ans_qc.measure(range(10), range(10))
 
-    qc_with_meas = qc.measure_all(inplace=False)
-
-    assert small_qc == qc_with_meas
+    assert small_qc == ans_qc
