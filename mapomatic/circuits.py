@@ -91,6 +91,8 @@ def inflate_circuit(input_circ, layout, backend):
         input_circ (QuantumCircuit): Input circuit.
         layout (list): List of best qubits for layout
         backend (int or BackendV1 or BackendV2): An IBM Quantum backend instance
+                                                 or integer specifying number of
+                                                 qubits
 
     Returns:
         QuantumCircuit: Inflated circuit.
