@@ -12,6 +12,7 @@
 # pylint: disable=protected-access
 
 """Circuit manipulation tools"""
+import numbers
 from qiskit import QuantumCircuit
 
 
@@ -89,7 +90,7 @@ def inflate_circuit(input_circ, layout, backend):
     Parameters:
         input_circ (QuantumCircuit): Input circuit.
         layout (list): List of best qubits for layout
-        backend (IBMQBackend): An IBM Quantum backend instance
+        backend (int or BackendV1 or BackendV2): An IBM Quantum backend instance
 
     Returns:
         QuantumCircuit: Inflated circuit.
@@ -97,7 +98,10 @@ def inflate_circuit(input_circ, layout, backend):
     Notes:
         Requires a circuit with flatten qregs and cregs.
     """
-    num_qubits = backend.configuration().num_qubits
+    if isinstance(backend, numbers.Integral):
+        num_qubits = backend
+    else:
+        num_qubits = backend.configuration().num_qubits
     new_qc = QuantumCircuit(num_qubits, input_circ.num_clbits)
     for item in input_circ.data:
         ref = getattr(new_qc, item[0].name)
