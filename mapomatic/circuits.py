@@ -12,6 +12,7 @@
 # pylint: disable=protected-access
 
 """Circuit manipulation tools"""
+import numbers
 from qiskit import QuantumCircuit
 
 
@@ -81,3 +82,33 @@ def active_bits(input_circ):
                 active_clbits.add(clbit)
 
     return active_qubits, active_clbits
+
+
+def inflate_circuit(input_circ, layout, backend):
+    """Inflate a circuit to execute on a backend.
+
+    Parameters:
+        input_circ (QuantumCircuit): Input circuit.
+        layout (list): List of best qubits for layout
+        backend (int or BackendV1 or BackendV2): An IBM Quantum backend instance
+                                                 or integer specifying number of
+                                                 qubits
+
+    Returns:
+        QuantumCircuit: Inflated circuit.
+
+    Notes:
+        Requires a circuit with flatten qregs and cregs.
+    """
+    if isinstance(backend, numbers.Integral):
+        num_qubits = backend
+    else:
+        num_qubits = backend.configuration().num_qubits
+    new_qc = QuantumCircuit(num_qubits, input_circ.num_clbits)
+    for item in input_circ.data:
+        ref = getattr(new_qc, item[0].name)
+        params = item[0].params
+        qargs = [layout[input_circ.find_bit(idx).index] for idx in item[1]]
+        cargs = item[2]
+        ref(*params, *qargs, *cargs)
+    return new_qc
