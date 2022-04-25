@@ -21,7 +21,6 @@ BACKEND = FakeMontreal()
 
 def test_inflate1():
     """I can properly inflate a circuit"""
-   
     qc = QuantumCircuit(5)
     qc.h(0)
     qc.cx(0,1)
