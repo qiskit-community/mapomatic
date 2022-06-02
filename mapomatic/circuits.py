@@ -54,7 +54,7 @@ def deflate_circuit(input_circ):
             qargs = [new_qc.qubits[active_map[qubit]] for qubit in used_active_set]
             cargs = [new_qc.clbits[active_map[clbit]] for clbit in item[2]]
             ref(*params, *qargs, *cargs)
-
+    new_qc.global_phase = input_circ.global_phase
     return new_qc
 
 
@@ -111,4 +111,5 @@ def inflate_circuit(input_circ, layout, backend):
         qargs = [layout[input_circ.find_bit(idx).index] for idx in item[1]]
         cargs = item[2]
         ref(*params, *qargs, *cargs)
+    new_qc.global_phase = input_circ.global_phase
     return new_qc
