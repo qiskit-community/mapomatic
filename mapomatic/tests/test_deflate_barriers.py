@@ -42,8 +42,8 @@ def test_deflate_barriers1():
     ans_qc.cx(1, 2)
     ans_qc.cx(2, 3)
     ans_qc.barrier()
-    # Transpiler does not preserve global phase of input circuit
-    ans_qc.global_phase = trans_qc.global_phase
+    # Need to add phase
+    ans_qc.global_phase = np.pi/4
 
     assert small_qc == ans_qc
 
