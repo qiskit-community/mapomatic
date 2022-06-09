@@ -127,7 +127,7 @@ scores = mm.evaluate_layouts(small_qc, layouts, backend)
  ([7, 10, 13, 12, 15, 18], 0.4472384837396254)]
 ```
 
-The return layouts and costs are sorted from lowest to highest. You can then use the best layout in a new call to `transpile` 
+The return layouts and costs are sorted from lowest to highest. You can then use the best layout in a new call to `transpile`
 which will then do the desired mapping for you:
 
 ```python
@@ -193,8 +193,8 @@ We obviously want the one with minimum CNOT gates here:
 
 ```python
 
-best_idx = np.where(best_cx_count == np.min(best_cx_count))[0][0]
-best_qc = trans_qc_list[best_idx] 
+best_idx = np.argmin(best_cx_count)
+best_qc = trans_qc_list[best_idx]
 ```
 
 We can then use this best mapped circuit to find the ideal qubit candidates via `mapomatic`.
@@ -232,7 +232,7 @@ You can define a custom cost function in the following manner
 def cost_func(circ, layouts, backend):
     """
     A custom cost function that includes T1 and T2 computed during idle periods
-    
+
     Parameters:
         circ (QuantumCircuit): circuit of interest
         layouts (list of lists): List of specified layouts
