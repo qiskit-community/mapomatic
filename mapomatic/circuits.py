@@ -33,15 +33,16 @@ def deflate_circuit(input_circ):
     num_reduced_qubits = len(active_qubits)
     num_reduced_clbits = len(active_clbits)
 
-    active_map = {}
+    active_qubit_map = {}
+    active_bit_map = {}
     for idx, val in enumerate(
         sorted(active_qubits, key=lambda x: input_circ.find_bit(x).index)
     ):
-        active_map[val] = idx
+        active_qubit_map[val] = idx
     for idx, val in enumerate(
         sorted(active_clbits, key=lambda x: input_circ.find_bit(x).index)
     ):
-        active_map[val] = idx
+        active_bit_map[val] = idx
 
     new_qc = QuantumCircuit(num_reduced_qubits, num_reduced_clbits)
     for item in input_circ.data:
@@ -51,8 +52,8 @@ def deflate_circuit(input_circ):
         if any(used_active_set):
             ref = getattr(new_qc, item[0].name)
             params = item[0].params
-            qargs = [new_qc.qubits[active_map[qubit]] for qubit in used_active_set]
-            cargs = [new_qc.clbits[active_map[clbit]] for clbit in item[2]]
+            qargs = [new_qc.qubits[active_qubit_map[qubit]] for qubit in used_active_set]
+            cargs = [new_qc.clbits[active_bit_map[clbit]] for clbit in item[2]]
             ref(*params, *qargs, *cargs)
     new_qc.global_phase = input_circ.global_phase
     return new_qc
