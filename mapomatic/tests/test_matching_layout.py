@@ -12,7 +12,7 @@
 """Test best mappings"""
 
 from qiskit import QuantumCircuit
-from qiskit.test.mock import FakeMontreal, FakeMumbaiV2
+from qiskit.providers.fake_provider import FakeMontreal, FakeMumbaiV2
 
 import mapomatic as mm
 

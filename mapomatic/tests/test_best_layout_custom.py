@@ -12,7 +12,7 @@
 """Test best mappings"""
 import numpy as np
 from qiskit import transpile, QuantumCircuit
-from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
+from qiskit.providers.fake_provider import FakeBelem, FakeQuito, FakeLima
 
 import mapomatic as mm
 

@@ -13,7 +13,7 @@
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
-from qiskit.test.mock import FakeMontreal
+from qiskit.providers.fake_provider import FakeMontreal
 
 import mapomatic as mm
 

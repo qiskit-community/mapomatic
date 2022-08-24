@@ -12,7 +12,7 @@
 """Tests for inflating circuits"""
 
 from qiskit import QuantumCircuit, transpile
-from qiskit.test.mock import FakeMontreal
+from qiskit.providers.fake_provider import FakeMontreal
 
 import mapomatic as mm
 

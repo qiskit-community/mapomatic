@@ -12,7 +12,7 @@
 """Test layouts in transpile"""
 
 from qiskit import transpile
-from qiskit.test.mock import FakeMontreal
+from qiskit.providers.fake_provider import FakeMontreal
 from qiskit.circuit.library import QuantumVolume
 
 import mapomatic as mm
