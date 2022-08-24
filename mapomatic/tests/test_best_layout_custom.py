@@ -12,7 +12,7 @@
 """Test best mappings"""
 import numpy as np
 from qiskit import transpile, QuantumCircuit
-from qiskit.test.mock import FakeBelem, FakeQuito, FakeLima
+from qiskit.providers.fake_provider import FakeBelem, FakeQuito, FakeLima
 
 import mapomatic as mm
 
@@ -30,9 +30,9 @@ def test_custom_cost_function():
     backends = [FakeBelem(), FakeQuito(), FakeLima()]
     res = mm.best_overall_layout(small_qc, backends, successors=True,
                                  cost_function=cost_func)
-    expected_res = [([3, 1, 0], 'fake_lima', 0.11830389787680795),
-                    ([3, 1, 0], 'fake_belem', 0.14358751944450088),
-                    ([3, 1, 0], 'fake_quito', 0.18092141250599547)]
+    expected_res = [([1, 3, 0], 'fake_lima', 0.118750487848573),
+                    ([1, 3, 0], 'fake_belem', 0.1353608250383157),
+                    ([1, 3, 0], 'fake_quito', 0.17887362578892418)]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
