@@ -475,7 +475,15 @@ This returns again the layout
 [3, 5, 8]
 ```
 While it did not make a difference in this example, it is valuable to have the option ti give each collision a weight. This will becomes especially important for larger, more complicated circuits or for very strong and harmful frequency collisions.
-We can also slightly change the method by which the score is evaluated. The standard value of the keywordargument of the `best_fc_mapping` function is `method=1`. By changing it to `method=2`, we change to a slightly modified score-function.
+We can also slightly change the method by which the score is evaluated. The standard value of the keywordargument of the `best_fc_mapping` function is `method=1`. By changing it to `method=2`, we change to a slightly modified cost function. When using the second method for the cost function
+```python
+mm.detect_fc.best_fc_mapping(scores,collision_dict,0.01,weight=weights_cairo,method=2)
+```
+we obtain an alternativy recommendation
+```python
+[11, 14, 13].
+```
+A priori it is not clear, which of the presented methods is better. But it is useful to know that there are slightly different approaches.
 
 ### Cutting out Layouts affected by collisions
 
