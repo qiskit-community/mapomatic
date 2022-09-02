@@ -335,18 +335,17 @@ mm.best_overall_layout(small_qc, backends, successors=True, cost_function=cost_f
 We now want to look at the implementation of frequency collision detection in mapomatic.
 
 First of all, what are frequency collisions?
-Frequency collisions are effects which can appear, when two nearby qubits have close-enough frequencies (where with frequencies I mean all possible phsyical frequencies, e.g. between the 0 and 1 state, 0 and 2 state or 1 and 2 state).
-These collisions are generally unwanted and perturb the hardware, leading to a worse result. Thus, we would like to avoid these effects when running a circuit.
+Frequency collisions are physical effects that can appear, when two nearby qubits have close-enough frequencies (where frequencies mean all possible physical frequencies, e.g. between the 0 and 1 state, 0 and 2 state or 1 and 2 state).
+These collisions are unwanted and perturb our system e.g. by altering the states of the qubits. Thus, we would like to avoid these effects when running a circuit.
 Fortunately, research has been done on these collisions and in which circumstances they can appear, e.g. in https://arxiv.org/abs/2009.00781. This script it based on the results in this paper.
-Here, we deal with 7 types of frequency collisions.
-
+Here, we deal with 7 types of frequency collisions and implement detection and an heuristic approach to avoid them. At this point it is important to state that the functions contained and presented in this library do not garantuee an improved fidelity or complete avoidance of these collisions. It is an heuristic approach based on our best current knowledge of these effects.
 
 
 
 
 
 ## Usage
-First, we need to load the module as well as the account to get access to the backends
+First, we need to load the modules as well as the account to get access to the backends
 
 ```python
 
@@ -392,7 +391,7 @@ For example, the entry at the key "2" of the dictionary means that the qubits 12
 ### Choosing the best mapping
 While it is already valuable to be aware of possible frequency collisions, we now want to try to avoid them when choosing our mappings.
 
-For this, we first have to run mapomatic. We are using an easy circuit as an example. Let's define it and run mapomatic.
+For this, we first have to run mapomatic. We are using an easy circuit as an example.
 
 ```python
 qc = QuantumCircuit(3)
@@ -415,7 +414,7 @@ layouts = mm.matching_layouts(small_circ, backend)
 scores = mm.evaluate_layouts(small_circ, layouts, backend)
 ```
 
-In the first lines of code we use the transpile function multiple times. Since transpilation creates a random amount of cx gates and since cx gates have generally a high error rate, we want to minimize the amount of cx gates.
+In the first lines of code we use the transpile function multiple times. Since transpilation creates a random amount of cx gates and since cx gates generally have a high error rate, we want to minimize the amount of cx gates.
 The "evaluate_layouts" function returns an array, ordered according to the score, containing the possible mapping and its mapomatic score (the lower the score, the better the mapping).
 
 ```python
@@ -479,7 +478,7 @@ While it did not make a difference in this example, it is valuable to have the o
 
 ### Cutting out Layouts affected by collisions
 
-The last method we want to look at again tries to avoid collisions. This time though, we do not want to minimize a score but to cut out layouts where the score is too high. So to say, we do not trust our score enough to find us the best mapping but we trust that it tells us when mappings are "bad".
+The last method we want to look at again tries to avoid collisions. This time though, we do not want to minimize a score but to cut out layouts where the score is too high. So to say, we do not trust our score enough to find us the best mapping but we trust that it tells us when mappings are "too bad".
 For this, we can use the "FC_filter" function.
 ```python
 filtered_scores=mm.detect_fc.fc_filter(scores,collision_dict,threshhold=1)
