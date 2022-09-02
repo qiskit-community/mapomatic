@@ -374,7 +374,7 @@ What we can do first is to look at possible frequency collisions. This can be do
 collision_dict=mm.detect_fc.collision_dict(backend)
 ```
 
-The return of this function is a dictionary. The dictionary contaings all qubit pairs which are susceptible to a frequency collision of given type.
+The return of this function is a dictionary. The dictionary contains all qubit pairs which are susceptible to a frequency collision of given type.
 
 ```python
 {1: [],
@@ -414,8 +414,8 @@ layouts = mm.matching_layouts(small_circ, backend)
 scores = mm.evaluate_layouts(small_circ, layouts, backend)
 ```
 
-In the first lines of code we use the transpile function multiple times. Since transpilation creates a random amount of cx gates and since cx gates generally have a high error rate, we want to minimize the amount of cx gates.
-The `evaluate_layouts` function returns an array, ordered according to the score, containing the possible mapping and its mapomatic score.
+
+As stated above, the `evaluate_layouts` function returns an array, ordered according to the score, containing the possible mapping and its mapomatic score.
 
 ```python
 [([11, 14, 13], 0.03903173087627598),
