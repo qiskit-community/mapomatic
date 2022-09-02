@@ -438,7 +438,7 @@ We can see that the best mappings according to mapomatic have scores which are v
 We can try to (partially) resolve this uncertainty by taking into account frequency collisions: possible frequency collisions can be the cause of very different actual fidelities of these mappings. By trying to avoid mappings with potential frequency collisions, we want to improve the performance of mapomatic.
 
 The first method we present consists of minimizing a score based on the collision dictionary. We minimize it on a subset of (the best) mapomatic mappings.
-This is achieved by using the function `best_fc_mapping`. The function takes the return of the `mapomatic.evaluate_layouts`  function (scores) as first argument and the return of `frequency_collision.collision_dict` (collision_dict) as second argument. The third argument specifies what subset mappings we want to look at. in our case, we choose '0.01' for the third argument.
+This is achieved by using the function `best_fc_mapping`. The function takes the return of the `mapomatic.evaluate_layouts`  function (scores) as first argument and the return of `frequency_collision.collision_dict` (collision_dict) as second argument. The third argument specifies what subset of mappings we want to look at. In our case, we choose '0.01' for the third argument.
 This means that we look at the list of layouts with the lowest mapomatic score up until layouts with a score of the lowest score+0.01. On this subset, we minimize a second heuristic (which we call here fc_score) based on the collision_dict.
 
 ```python
@@ -452,7 +452,7 @@ In our case, this returns the mapping
 
 Additionally, we can introduce weights for each of the frequency collisions. Without weights, all collisions are counted as the same. In practice though, different collisions can have a vastly different impact. Therefore, one could e.g. guess the weight of each collision or run calibration circuits.
 The weights should have the form of a dictionary analogous to the collision dictionary. 
-As an example, we ran calibration circuits to estimate the impact of each frequency collisions. The weight dictionary is then given as
+As an example, we ran calibration circuits to estimate the impact of each frequency collision. The weight dictionary is then given as
 
 ```python
 weights_cairo={0: [],
@@ -474,7 +474,7 @@ This returns again the layout
 ```python
 [3, 5, 8]
 ```
-While it did not make a difference in this example, it is valuable to have the option ti give each collision a weight. This will becomes especially important for larger, more complicated circuits or for very strong and harmful frequency collisions.
+While it did not make a difference in this example, it is valuable to have the option to give each collision a weight. This might become especially important for larger, more complicated circuits or for very strong and harmful frequency collisions.
 We can also slightly change the method by which the score is evaluated. The standard value of the keywordargument of the `best_fc_mapping` function is `method=1`. By changing it to `method=2`, we change to a slightly modified cost function. When using the second method for the cost function
 ```python
 mm.detect_fc.best_fc_mapping(scores,collision_dict,0.01,weight=weights_cairo,method=2)
@@ -483,7 +483,7 @@ we obtain an alternativy recommendation
 ```python
 [11, 14, 13].
 ```
-A priori it is not clear, which of the presented methods is better. But it is useful to know that there are slightly different approaches.
+A priori it is not clear which of the presented methods is better. But it is useful to know that there are slightly different approaches.
 
 ### Cutting out Layouts affected by collisions
 
