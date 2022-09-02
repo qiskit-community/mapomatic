@@ -374,19 +374,19 @@ def fc_score(mapping,collision_dict,weight=1,method=1):
 
 
 
-def fc_filter(scores, collision_dict,weight=1, threshhold=2):
+def fc_filter(scores, collision_dict,weight=1, threshold=2):
     """
-    function returns sublist of mappings for which the score is below the threshhold
+    function returns sublist of mappings for which the score is below the threshold
     
     Arguments:
     scores: list of mappings with scores as given by mapomatic
     collision_dict: return of collision dict function
     weight: possible weight array
-    threshhold: threshhold of when to cut out mappings
+    threshold: threshold of when to cut out mappings
     
     a priori values if weight=1 yields that eacg collision is weighted the same
     
-    threshhold=4 cuts mapping out once it experiences more than 4 collisions, if we put a non-trivial weight array into we have to adjust the threshhold
+    threshold=4 cuts mapping out once it experiences more than 4 collisions, if we put a non-trivial weight array into we have to adjust the threshold
     """
     #first we take only the mappings of the scores array
     mapping_list=[]
@@ -400,7 +400,7 @@ def fc_filter(scores, collision_dict,weight=1, threshhold=2):
     #if we count just the number of collisions, we have to adjust the threshold
     score_list=[fc_score(mapping,collision_dict,weight) for mapping in mapping_list]
     for i in range(len(mapping_list)):
-        if score_list[i]<=threshhold:
+        if score_list[i]<=threshold:
             cleaned_list.append((mapping_list[i],score_array[i]))
     return(cleaned_list)
     
