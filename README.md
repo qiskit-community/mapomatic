@@ -337,7 +337,7 @@ We now want to look at the implementation of frequency collision detection in ma
 First of all, what are frequency collisions?
 Frequency collisions are physical effects that can appear, when two nearby qubits have close-enough frequencies (where frequencies mean all possible physical frequencies, e.g. between the 0 and 1 state, 0 and 2 state or 1 and 2 state).
 These collisions are unwanted and perturb our system e.g. by altering the states of the qubits. Thus, we would like to avoid these effects when running a circuit.
-Fortunately, research has been done on these collisions and in which circumstances they can appear, e.g. in https://arxiv.org/abs/2009.00781. This script it based on the results in this paper.
+Fortunately, research has been done on these collisions and in which circumstances they can appear, e.g. in https://arxiv.org/abs/2009.00781. This script is based on the results in this paper.
 Here, we deal with 7 types of frequency collisions and implement detection and an heuristic approach to avoid them. At this point it is important to state that the functions contained and presented in this library do not garantuee an improved fidelity or complete avoidance of these collisions. It is an heuristic approach based on our best current knowledge of these effects.
 
 
