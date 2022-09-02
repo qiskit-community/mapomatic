@@ -329,10 +329,9 @@ mm.best_overall_layout(small_qc, backends, successors=True, cost_function=cost_f
  ([4, 0, 1, 2, 3], 'ibm_cairo', 0.4133587550267118)]
  ```
 
-# mapomatic_fc
 
 
-## Overview
+## Frequency Collisions
 We now want to look at the implementation of frequency collision detection in mapomatic.
 
 First of all, what are frequency collisions?
