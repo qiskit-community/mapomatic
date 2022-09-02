@@ -490,11 +490,11 @@ A priori it is not clear which of the presented methods is better. But it is use
 The last method we want to look at again tries to avoid collisions. This time though, we do not want to minimize a score but to cut out layouts where the score is too high. So to say, we do not trust our score enough to find us the best mapping but we trust that it tells us when mappings are "too bad".
 For this, we can use the `fc_filter` function.
 ```python
-filtered_scores=mm.detect_fc.fc_filter(scores,collision_dict,threshhold=1)
+filtered_scores=mm.detect_fc.fc_filter(scores,collision_dict,threshold=1)
 
 ```
 The function takes an array of the same format as the output of the `mapomatic.evaluate_layouts` function as well as the collision_dictionary.
-Furthermore, we have to give the function a threshhold at which it cuts out layouts. In our case, we chose the threshhold as 1, meaning layouts where the FC score (amount of potential frequency collisions affecting the circuit) is more than 1 are being thrown out.
+Furthermore, we have to give the function a threshold at which it cuts out layouts. In our case, we chose the threshold as 1, meaning layouts where the FC score (amount of potential frequency collisions affecting the circuit) is more than 1 are being thrown out.
 The return of the function is a subset of the score-array without the layouts whose FC score is too high.
 
 ```python
