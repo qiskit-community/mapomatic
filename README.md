@@ -368,7 +368,7 @@ backend = provider.get_backend("ibm_cairo")
 ```
 
 ### Getting Frequency Collision Awareness
-What we can do first is to look at possible frequency collisions. This can be done using the 'collision_dict' function.
+What we can do first is to look at possible frequency collisions. This can be done using the `collision_dict` function.
 
 ```python
 collision_dict=mm.detect_fc.collision_dict(backend)
@@ -400,7 +400,7 @@ qc.cx(0,[1,2])
 qc.measure_all()
 ```
 Our example circuit produceds a 3-Qubit GHZ state.
-We now apply mapomatic to get the best mappings.
+We now apply `mapomatic` to get the best mappings.
 ```python
 trans_qc_list = transpile([qc]*30, backend)
 best_cx_count = [circ.count_ops()['cx'] for circ in trans_qc_list]
@@ -415,7 +415,7 @@ scores = mm.evaluate_layouts(small_circ, layouts, backend)
 ```
 
 In the first lines of code we use the transpile function multiple times. Since transpilation creates a random amount of cx gates and since cx gates generally have a high error rate, we want to minimize the amount of cx gates.
-The "evaluate_layouts" function returns an array, ordered according to the score, containing the possible mapping and its mapomatic score (the lower the score, the better the mapping).
+The `evaluate_layouts` function returns an array, ordered according to the score, containing the possible mapping and its mapomatic score.
 
 ```python
 [([11, 14, 13], 0.03903173087627598),
@@ -438,7 +438,7 @@ We can see that the best mappings according to mapomatic have scores which are v
 We can try to (partially) resolve this uncertainty by taking into account frequency collisions: possible frequency collisions can be the cause of very different actual fidelities of these mappings. By trying to avoid mappings with potential frequency collisions, we want to improve the performance of mapomatic.
 
 The first method we present consists of minimizing a score based on the collision dictionary. We minimize it on a subset of (the best) mapomatic mappings.
-This is achieved by using the function "best_fc_mapping". The function takes the return of the mapomatic.evaluate_layouts function (scores) as first argument and the return of frequency_collision.collision_dict (collision_dict) as second argument. The third argument specifies what subset mappings we want to look at. in our case, we choose '0.01' for the third argument.
+This is achieved by using the function `best_fc_mapping`. The function takes the return of the `mapomatic.evaluate_layouts`  function (scores) as first argument and the return of `frequency_collision.collision_dict` (collision_dict) as second argument. The third argument specifies what subset mappings we want to look at. in our case, we choose '0.01' for the third argument.
 This means that we look at the list of layouts with the lowest mapomatic score up until layouts with a score of the lowest score+0.01. On this subset, we minimize a second heuristic (which we call here fc_score) based on the collision_dict.
 
 ```python
@@ -465,7 +465,7 @@ weights_cairo={0: [],
  7: []}
 
 ```
-We can give our "best_fc_mapping" function the weight dictionary as input (keyword argument):
+We can give our `best_fc_mapping` function the weight dictionary as input (keyword argument):
 
 ```python
 mm.detect_fc.best_fc_mapping(scores,collision_dict,0.01,weight=weights_cairo)
@@ -479,12 +479,12 @@ While it did not make a difference in this example, it is valuable to have the o
 ### Cutting out Layouts affected by collisions
 
 The last method we want to look at again tries to avoid collisions. This time though, we do not want to minimize a score but to cut out layouts where the score is too high. So to say, we do not trust our score enough to find us the best mapping but we trust that it tells us when mappings are "too bad".
-For this, we can use the "FC_filter" function.
+For this, we can use the `fc_filter` function.
 ```python
 filtered_scores=mm.detect_fc.fc_filter(scores,collision_dict,threshhold=1)
 
 ```
-The function takes an array of the same format as the output of the mapomatic.evaluate_layouts function as well as the collision_dictionary.
+The function takes an array of the same format as the output of the `mapomatic.evaluate_layouts` function as well as the collision_dictionary.
 Furthermore, we have to give the function a threshhold at which it cuts out layouts. In our case, we chose the threshhold as 1, meaning layouts where the FC score (amount of potential frequency collisions affecting the circuit) is more than 1 are being thrown out.
 The return of the function is a subset of the score-array without the layouts whose FC score is too high.
 
