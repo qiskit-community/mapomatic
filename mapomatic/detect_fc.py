@@ -1,4 +1,4 @@
-#make frequency collision script
+#frequency collision script
 
 
 
@@ -281,7 +281,7 @@ def collision_dict(backend):
 
         
 
-def best_FC_mapping(scores,collision_dict,percentage,weight=1):
+def best_fc_mapping(scores,collision_dict,percentage,weight=1,method=1):
     """
     Arguments:
     scores: is return of mm.evaluate_layouts; contains mappings with scores
@@ -311,27 +311,21 @@ def best_FC_mapping(scores,collision_dict,percentage,weight=1):
         viable_mappings.append(all_mappings[i])
         i+=1
    #now get collision count for each mapping
-    collision_count=[]
-    for mapping in viable_mappings:
-        aux_count=0
-        for key in collision_dict:
-            list_qubitpairs=collision_dict[key]
-            for qubitpair in list_qubitpairs:
-                if set(qubitpair).intersection(set(mapping))!=set():
-                    aux_count+=1*weight[key][list_qubitpairs.index(qubitpair)]
-        collision_count.append(aux_count)
+    collision_count=[fc_score(mapping,collision_dict,weight,method) for mapping in viable_mappings]
                     
                     
     #now we have the full collision count
+    #minimize the score function
     
     return(viable_mappings[np.argmin(collision_count)])
 
 
-def FC_score(mapping,collision_dict,weight=1):
+def fc_score(mapping,collision_dict,weight=1,method=1):
     """
     function computes the FC score cost function
     will be useful to detect if introduction of weights/ FC method is useful
     """
+    
     import copy
     weights0=copy.deepcopy(collision_dict)
     for key in weights0:
@@ -339,46 +333,31 @@ def FC_score(mapping,collision_dict,weight=1):
             weights0[key][i]=1
     if weight ==1:
         weight=weights0
-    collision_score=0
-    for key in collision_dict:
-        list_qubitpairs=collision_dict[key]
-        for qubitpair in list_qubitpairs:
-            if set(qubitpair).intersection(set(mapping))!=set():
-                collision_score+=1*weight[key][list_qubitpairs.index(qubitpair)]
-    return(collision_score)
+    if method == 1:
+        collision_score=0
+        for key in collision_dict:
+            list_qubitpairs=collision_dict[key]
+            for qubitpair in list_qubitpairs:
+                if set(qubitpair).intersection(set(mapping))!=set():
+                    collision_score+=1*weight[key][list_qubitpairs.index(qubitpair)]
+        return(collision_score)
+    elif method == 2:
+        score=0
+        for key in collision_dict:
+            for collision in collision_dict[key]:
+                test=True
+                for qubit in collision:
+                    if qubit not in mapping:
+                        test=False
+                if test:
+                    score+=weight[key][collision_dict[key].index(collision)]
+        return(score)
+    else:
+        raise Error("the method kwarg must take value 1 or 2")
     
     
     
-    
-#define ver 2 of the FC_score
-#this version tries to take into account more the actual connectivity, does not just take intersections
 
-def FC_score_ver2(mapping,collision_dict,weight=1):
-    """
-    function computes the FC score cost function in version 2
-    will be useful to detect if introduction of weights/ FC method is useful
-    """
-    import copy
-    weights0=copy.deepcopy(collision_dict)
-    for key in weights0:
-        for i in range(len(weights0[key])):
-            weights0[key][i]=1
-    if weight ==1:
-        weight=weights0
-    
-    
-   
-    score=0   #we will add up the errors here
-    for key in collision_dict:
-        for collision in collision_dict[key]:
-            test=True
-            for qubit in collision:
-                if qubit not in mapping:
-                    test=False
-            if test:
-                score+=weight[key][collision_dict[key].index(collision)]
-    return(score)
-    
     
     
     
@@ -388,77 +367,19 @@ def FC_score_ver2(mapping,collision_dict,weight=1):
     
  
     
-#define function for thermal mapping
 
-def thermal_mapping(mappings_array,cost_array,N,T=1):
+
+
+
+
+
+
+def fc_filter(scores, collision_dict,weight=1, threshhold=2):
     """
-    Arguments:
-    mappings_array: array containing different mappings
-    cost_array: same shape as mappings_array, contains cost for each of the mappings
-    N:total amount of mappings (approximate, upper limit)
-    T: "Temperature", optional
-    
-    returns mappings_final: array containing each mapping the corresponding time, len(mappings_final)<=N and hopefully len(mappings_final) \approx N
-
-    """
-    if len(mappings_array)!=len(cost_array):
-        raise ValueError("arrys must be same length")
-        
-    #define partition function
-    Z=0
-    for cost_i in cost_array:
-        Z+=np.exp(-cost_i/T)
-        
-    #next get array containing number of each mapping
-    n=[]
-    for i in range(len(mappings_array)):
-        n.append(int(N/Z*(np.exp(-cost_array[i]/T))))
-    mappings_final=[]
-    for i in range(len(mappings_array)):
-        number=n[i]
-        for j in range(number):
-            mappings_final.append(mappings_array[i])
-            j+=1
-        i+=1
-    return(mappings_final)
-
-
-
-
-#define also function to give only the "thermal integers" by which each mapping is weighed
-
-def thermal_integers(cost_array,N,T=1):
-    """
-    Arguments:
-    mappings_array: array containing different mappings
-    cost_array: same shape as mappings_array, contains cost for each of the mappings
-    N:total amount of mappings (approximate, upper limit)
-    T: "Temperature", optional
-    
-    returns integers n_i which are N*rho_i=N/Z *exp(-cost/T)
-
-    """
-   # if len(mappings_array)!=len(cost_array):
-    #    raise ValueError("arrys must be same length")
-        
-    #define partition function
-    Z=0
-    for cost_i in cost_array:
-        Z+=np.exp(-cost_i/T)
-        
-    #next get array containing number of each mapping
-    n=[]
-    for i in range(len(cost_array)):
-        n.append(int(N/Z*(np.exp(-cost_array[i]/T))))
-    
-    return(n)
-
-def FC_score_filter(mapping, collision_dict,weight=1, threshhold=4):
-    """
-    function returns  False if a specific mapping has an FC score above the threshhold and returns True if it is below
+    function returns sublist of mappings for which the score is below the threshhold
     
     Arguments:
-    mapping: array of used qubits for mapping [q_0,q_1,....,q-n]
+    scores: list of mappings with scores as given by mapomatic
     collision_dict: return of collision dict function
     weight: possible weight array
     threshhold: threshhold of when to cut out mappings
@@ -467,40 +388,19 @@ def FC_score_filter(mapping, collision_dict,weight=1, threshhold=4):
     
     threshhold=4 cuts mapping out once it experiences more than 4 collisions, if we put a non-trivial weight array into we have to adjust the threshhold
     """
-    
+    #first we take only the mappings of the scores array
+    mapping_list=[]
+    for i in range(len(scores)):
+        mapping_list.append(scores[i][0])
+    #get array with scores
+    score_array=[]
+    for i in range(len(scores)):
+        score_array.append(scores[i][1])
+    cleaned_list=[]
     #if we count just the number of collisions, we have to adjust the threshold
-    score=FC_score(mapping,collision_dict,weight)
-    if score <= threshhold:
-        return(True)
-    else:
-        return(False)
-    
-    
-    
-    
-#finally try to use a "full characterization score" based on the randomized benchmarking ansatz by Fraunhofer/Andreas
-
-
-import mapomatic as mm
-def full_char_score(circ,mapping,backend,crosstalk_dicts):
-    fid0=1-mm.layouts.default_cost(circ,[mapping],backend)[0][1]
-    #now add factors based on crosstalk dicts
-    dict1=crosstalk_dicts[0]
-    dict2=crosstalk_dicts[1]
-    for q0 in mapping:
-        for q1 in mapping:
-            if str([q0, q1]) in dict1.keys():
-                for q2 in mapping:
-                    if str([q2]) in dict1[str([q0, q1])]:
-                        fid0*=1-dict1[str([q0, q1])][str([q2])][0]
-                                      
-    for q0 in mapping:
-        for q1 in mapping:
-            if str([q0, q1]) in dict2.keys():
-                for q2 in mapping:
-                    if str([q2]) in dict2[str([q0, q1])]:
-                        fid0*=1-dict2[str([q0, q1])][str([q2])][0]
-                                      
-    return(1-fid0)
-    
+    score_list=[fc_score(mapping,collision_dict,weight) for mapping in mapping_list]
+    for i in range(len(mapping_list)):
+        if score_list[i]<=threshhold:
+            cleaned_list.append((mapping_list[i],score_array[i]))
+    return(cleaned_list)
     
