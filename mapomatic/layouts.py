@@ -35,7 +35,7 @@ from qiskit.transpiler.coupling import CouplingMap
 from qiskit.providers.backend import BackendV1, BackendV2
 
 
-def matching_layouts(circ, cmap, strict_direction=False, call_limit=100000):
+def matching_layouts(circ, cmap, strict_direction=False, call_limit=int(1e7)):
     """Matching for a circuit onto a given topology (coupling map)
 
     Parameters:
@@ -160,7 +160,8 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     return out
 
 
-def best_overall_layout(circ, backends, successors=False, call_limit=10000, cost_function=None):
+def best_overall_layout(circ, backends, successors=False, call_limit=int(1e7),
+                        cost_function=None):
     """Find the best selection of qubits and system to run
     the chosen circuit one.
 
