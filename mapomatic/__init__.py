@@ -20,6 +20,7 @@ except ImportError:
 
 from .circuits import (deflate_circuit, inflate_circuit, active_bits)
 from .layouts import (best_overall_layout, matching_layouts, evaluate_layouts)
+from .detect_fc import (collision_dict,best_fc_mapping, fc_score, fc_filter)
 
 
 def about():
