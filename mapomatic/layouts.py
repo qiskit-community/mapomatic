@@ -167,7 +167,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
 
     Parameters:
         circ (QuantumCircuit): Quantum circuit
-        backends (IBMQBackend or list): A single or list of backends.
+        backends (IBMQBackend or IBMBackend or list): A single or list of backends.
         successors (bool): Return list best mappings per backend passed.
         call_limit (int): Maximum number of calls to VF2 mapper.
         cost_function (callable): Custom cost function, default=None
@@ -187,6 +187,8 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
 
     circ_qubits = circ.num_qubits
     for backend in backends:
+        # Runtime backend API differs from IBMQ backend API
+        backend_name = backend.name if isinstance(backend.name, str) else backend.name()
         config = backend.configuration()
         num_qubits = config.num_qubits
         if not config.simulator and circ_qubits <= num_qubits:
@@ -200,7 +202,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
                 error = layout_and_error[0][1]
-                best_out.append((layout, backend.name(), error))
+                best_out.append((layout, backend_name, error))
     best_out.sort(key=lambda x: x[2])
     if successors:
         return best_out
