@@ -45,7 +45,7 @@ def deflate_circuit(input_circ):
         active_bit_map[val] = idx
 
     new_qc = QuantumCircuit(num_reduced_qubits, num_reduced_clbits)
-    for item in input_circ.data:
+    for idx, item in enumerate(input_circ.data):
         # Find active qubits used by instruction (if any)
         used_active_set = [qubit for qubit in item[1] if qubit in active_qubits]
         # If any active qubits used, add to deflated circuit
@@ -54,7 +54,10 @@ def deflate_circuit(input_circ):
             params = item[0].params
             qargs = [new_qc.qubits[active_qubit_map[qubit]] for qubit in used_active_set]
             cargs = [new_qc.clbits[active_bit_map[clbit]] for clbit in item[2]]
+            condition = item[0].condition
             ref(*params, *qargs, *cargs)
+            # Set the condition of the last instruction (c_if syntax)
+            new_qc._data[idx][0].condition = condition
     new_qc.global_phase = input_circ.global_phase
     return new_qc
 
