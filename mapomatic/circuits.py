@@ -109,11 +109,13 @@ def inflate_circuit(input_circ, layout, backend):
     else:
         num_qubits = backend.configuration().num_qubits
     new_qc = QuantumCircuit(num_qubits, input_circ.num_clbits)
-    for item in input_circ.data:
+    for idx, item in enumerate(input_circ.data):
         ref = getattr(new_qc, item[0].name)
         params = item[0].params
         qargs = [layout[input_circ.find_bit(idx).index] for idx in item[1]]
         cargs = item[2]
+        condition = item[0].condition
         ref(*params, *qargs, *cargs)
+        new_qc._data[idx][0].condition = condition
     new_qc.global_phase = input_circ.global_phase
     return new_qc
