@@ -55,6 +55,8 @@ def deflate_circuit(input_circ):
             qargs = [new_qc.qubits[active_qubit_map[qubit]] for qubit in used_active_set]
             cargs = [new_qc.clbits[active_bit_map[clbit]] for clbit in item[2]]
             condition = item[0].condition
+            print(qargs)
+            print(cargs)
             ref(*params, *qargs, *cargs)
             # Set the condition of the last instruction (c_if syntax)
             new_qc._data[idx][0].condition = condition
@@ -116,6 +118,7 @@ def inflate_circuit(input_circ, layout, backend):
         cargs = item[2]
         condition = item[0].condition
         ref(*params, *qargs, *cargs)
+        # Set the condition of the last instruction (c_if syntax)
         new_qc._data[idx][0].condition = condition
     new_qc.global_phase = input_circ.global_phase
     return new_qc
