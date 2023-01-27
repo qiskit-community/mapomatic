@@ -29,7 +29,7 @@
 """Circuit manipulation tools"""
 import random
 
-from retworkx import PyGraph, PyDiGraph, vf2_mapping
+from rustworkx import PyGraph, PyDiGraph, vf2_mapping
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
 from qiskit.providers.backend import BackendV1, BackendV2
