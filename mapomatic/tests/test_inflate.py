@@ -50,3 +50,15 @@ def test_inflate1():
                 data2.pop(idx2)
                 break
         assert found
+
+
+def test_inflate2():
+    """I can inflate a circuit with arbitrary named creg"""
+
+    qc = QuantumCircuit(5)
+    qc.h(range(5))
+    qc.measure_all()
+    layout = [12, 13, 14, 15, 16]
+    new_qc = mm.inflate_circuit(qc, layout, 20)
+    for item in mm.active_bits(new_qc)[0]:
+        assert new_qc.find_bit(item).index in layout
