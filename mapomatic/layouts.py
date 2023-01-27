@@ -29,7 +29,7 @@
 """Circuit manipulation tools"""
 import random
 
-from rustworkx import PyGraph, PyDiGraph, vf2_mapping # pylint:disable=no-name-in-module
+from rustworkx import PyGraph, PyDiGraph, vf2_mapping  # pylint:disable=no-name-in-module
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
 from qiskit.providers.backend import BackendV1, BackendV2
