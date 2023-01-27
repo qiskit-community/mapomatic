@@ -98,6 +98,9 @@ def inflate_circuit(input_circ, layout, backend):
     Returns:
         QuantumCircuit: Inflated circuit.
 
+    Raises:
+        ValueError: More than one input classical register
+
     Notes:
         Requires a circuit with flatten qregs and cregs.
     """
@@ -105,7 +108,11 @@ def inflate_circuit(input_circ, layout, backend):
         num_qubits = backend
     else:
         num_qubits = backend.configuration().num_qubits
-    new_qc = QuantumCircuit(num_qubits, input_circ.num_clbits)
+    new_qc = QuantumCircuit(num_qubits)
+    if len(input_circ.cregs) > 1:
+        raise ValueError('Number of measurement registers must <= 1')
+    if input_circ.cregs:
+        new_qc.add_register(input_circ.cregs[0])
     for item in input_circ.data:
         ref = getattr(new_qc, item[0].name)
         params = item[0].params
