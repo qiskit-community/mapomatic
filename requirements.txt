@@ -1,2 +1,2 @@
-qiskit-terra>=0.19
-retworkx>=0.10.2
+qiskit-terra>=0.23
+rustworkx>=0.12.1
