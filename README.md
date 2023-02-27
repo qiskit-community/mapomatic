@@ -1,11 +1,11 @@
-# mapomatic
+# Mapomatic: Automatic mapping of compiled circuits to low-noise sub-graphs
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI version](https://badge.fury.io/py/mapomatic.svg)](https://badge.fury.io/py/mapomatic)
 [![pypi](https://img.shields.io/pypi/dm/mapomatic.svg)](https://pypi.org/project/mapomatic/)
 ![workflow](https://github.com/Qiskit-Partners/mapomatic/actions/workflows/python-package-conda.yml/badge.svg)
 
-Automatic mapping of compiled circuits to low-noise sub-graphs
+![mapomatic-fig](https://user-images.githubusercontent.com/1249193/221616579-56e574a7-5c1d-4479-8c92-16b0e350749a.png)
 
 ## Overview
 
