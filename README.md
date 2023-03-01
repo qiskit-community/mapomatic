@@ -13,6 +13,17 @@ One of the main painpoints in executing circuits on IBM Quantum hardware is find
 
 `mapomatic` tries to tackle these issues in a different way. `mapomatic` is a post-compilation routine that finds the best low noise sub-graph on which to run a circuit given one or more quantum systems as target devices.  Once compiled, a circuit has been rewritten so that its two-qubit gate structure matches that of a given sub-graph on the target system.  `mapomatic` then searches for matching sub-graphs using the VF2 mapper in [Qiskit](https://github.com/Qiskit/qiskit-terra) ([retworkx](https://github.com/Qiskit/retworkx) actually), and uses a heuristic to rank them based on error rates determined by the current calibration data. That is to say that given a single target system, `mapomatic` will return the best set of qubits on which to execute the compiled circuit.  Or, given a list of systems, it will find the best system and set of qubits on which to run your circuit.  Given the current size of quantum hardware, and the excellent performance of the VF2 mapper, this whole process is actually very fast.
 
+### Qiskit Transpiler
+
+The same algorithm used in mapomatic is integrated into the Qiskit transpiler
+by default as the `VF2PostLayout` pass (https://qiskit.org/documentation/stubs/qiskit.transpiler.passes.VF2PostLayout.html)
+which gets run by default in optimization levels 1, 2, and 3. Using mapomatic
+as a standalone tool has two primary advantages, the first is to enable
+running over multiple backends, and the second is to experiment with alternative
+heuristic scoring (`VF2PostLayout` supports custom heuristic scoring, but it
+is more difficult to integrate that into `transpile()`).
+
+
 ## Usage
 
 To begin we first import what we need and load our IBM Quantum account.
