@@ -35,7 +35,7 @@ from qiskit.transpiler.coupling import CouplingMap
 from qiskit.providers.backend import BackendV1, BackendV2
 
 
-def matching_layouts(circ, cmap, strict_direction=False, call_limit=int(3e7)):
+def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
     """Matching for a circuit onto a given topology (coupling map)
 
     Parameters:
@@ -226,19 +226,20 @@ def default_cost(circ, layouts, backend):
         error = 0
         fid = 1
         for item in circ._data:
-            if item[0].name == 'cx':
+            if item[0].num_qubits == 2:
                 q0 = circ.find_bit(item[1][0]).index
                 q1 = circ.find_bit(item[1][1]).index
-                fid *= (1-props.gate_error('cx', [layout[q0],
-                                                  layout[q1]]))
+                fid *= (1-props.gate_error(item[0].name, [layout[q0],
+                                           layout[q1]]))
 
             elif item[0].name in ['sx', 'x']:
                 q0 = circ.find_bit(item[1][0]).index
                 fid *= 1-props.gate_error(item[0].name, layout[q0])
 
-            elif item[0].name == 'measure':
+            elif item[0].name in ['measure', 'reset']:
                 q0 = circ.find_bit(item[1][0]).index
                 fid *= 1-props.readout_error(layout[q0])
+
         error = 1-fid
         out.append((layout, error))
     return out
