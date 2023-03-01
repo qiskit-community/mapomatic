@@ -230,7 +230,7 @@ def default_cost(circ, layouts, backend):
                 q0 = circ.find_bit(item[1][0]).index
                 q1 = circ.find_bit(item[1][1]).index
                 fid *= (1-props.gate_error(item[0].name, [layout[q0],
-                                                  layout[q1]]))
+                                           layout[q1]]))
 
             elif item[0].name in ['sx', 'x']:
                 q0 = circ.find_bit(item[1][0]).index
