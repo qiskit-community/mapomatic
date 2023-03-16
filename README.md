@@ -339,3 +339,7 @@ mm.best_overall_layout(small_qc, backends, successors=True, cost_function=cost_f
  ([4, 0, 1, 2, 3], 'ibmq_toronto', 0.39020468922200047),
  ([4, 0, 1, 2, 3], 'ibm_cairo', 0.4133587550267118)]
  ```
+
+# Citing
+
+If you use mapomatic in your research, we would be delighted if you cite it in your work using the included [BibTeX file](CITATION.bib).
