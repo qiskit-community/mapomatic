@@ -200,7 +200,7 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
                 error = layout_and_error[0][1]
-                best_out.append((layout, backend.name(), error))
+                best_out.append((layout, config.backend_name, error))
     best_out.sort(key=lambda x: x[2])
     if successors:
         return best_out
