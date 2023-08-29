@@ -23,6 +23,8 @@ running over multiple backends, and the second is to experiment with alternative
 heuristic scoring (`VF2PostLayout` supports custom heuristic scoring, but it
 is more difficult to integrate that into `transpile()`).
 
+## Installation
+`mapomatic` can be installed via `pip`: `pip install mapomatic` or installed from source.
 
 ## Usage
 
