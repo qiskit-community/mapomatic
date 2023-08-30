@@ -151,6 +151,9 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     """
     if not any(layouts):
         return []
+    circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset', 'measure'})
+    if not circuit_gates.issubset(backend.configuration().basis_gates):
+        return []
     if not isinstance(layouts[0], list):
         layouts = [layouts]
     if cost_function is None:
@@ -182,20 +185,19 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
     if cost_function is None:
         cost_function = default_cost
 
-    layouts = {}
     best_out = []
 
     circ_qubits = circ.num_qubits
     for backend in backends:
         config = backend.configuration()
+        circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset', 'measure'})
+        if not circuit_gates.issubset(backend.configuration().basis_gates):
+            continue
         num_qubits = config.num_qubits
         if not config.simulator and circ_qubits <= num_qubits:
-            seg = config.processor_type.get('segment', '')
-            key = str(num_qubits)+seg
-            if key not in layouts:
-                layouts[key] = matching_layouts(circ, config.coupling_map,
-                                                call_limit=call_limit)
-            layout_and_error = evaluate_layouts(circ, layouts[key], backend,
+            layouts = matching_layouts(circ, config.coupling_map,
+                                       call_limit=call_limit)
+            layout_and_error = evaluate_layouts(circ, layouts, backend,
                                                 cost_function=cost_function)
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
@@ -204,7 +206,9 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
     best_out.sort(key=lambda x: x[2])
     if successors:
         return best_out
-    return best_out[0]
+    if best_out:
+        return best_out[0]
+    return best_out
 
 
 def default_cost(circ, layouts, backend):
@@ -226,7 +230,7 @@ def default_cost(circ, layouts, backend):
         error = 0
         fid = 1
         for item in circ._data:
-            if item[0].num_qubits == 2:
+            if item[0].num_qubits == 2 and item[0].name != 'barrier':
                 q0 = circ.find_bit(item[1][0]).index
                 q1 = circ.find_bit(item[1][1]).index
                 fid *= (1-props.gate_error(item[0].name, [layout[q0],
