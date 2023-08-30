@@ -195,7 +195,6 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
             continue
         num_qubits = config.num_qubits
         if not config.simulator and circ_qubits <= num_qubits:
-            
             layouts = matching_layouts(circ, config.coupling_map,
                                        call_limit=call_limit)
             layout_and_error = evaluate_layouts(circ, layouts, backend,
