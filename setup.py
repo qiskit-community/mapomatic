@@ -24,7 +24,7 @@ MAJOR = 0
 MINOR = 11
 MICRO = 0
 
-ISRELEASED = False
+ISRELEASED = True
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 REQUIREMENTS = []
@@ -150,10 +150,11 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering",
     ],
     cmdclass={'lint': PylintCommand, 'style': StyleCommand},
