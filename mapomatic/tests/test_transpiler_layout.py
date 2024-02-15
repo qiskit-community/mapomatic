@@ -11,8 +11,8 @@
 # that they have been altered from the originals.
 """Test layouts in transpile"""
 
+from qiskit_ibm_runtime.fake_provider import FakeMontreal
 from qiskit import transpile
-from qiskit.providers.fake_provider import FakeMontreal
 from qiskit.circuit.library import QuantumVolume
 
 import mapomatic as mm
