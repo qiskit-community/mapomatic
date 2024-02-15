@@ -12,7 +12,7 @@
 """Test layouts in transpile"""
 
 from qiskit import transpile
-from qiskit.providers.fake_provider import FakeMontreal
+from qiskit_ibm_runtime.fake_provider import FakeMontreal
 from qiskit.circuit.library import QuantumVolume
 
 import mapomatic as mm
