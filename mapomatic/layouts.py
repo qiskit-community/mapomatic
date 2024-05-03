@@ -151,7 +151,8 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     """
     if not any(layouts):
         return []
-    circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset', 'measure'})
+    circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset',
+                                                      'measure', 'delay'})
     if not circuit_gates.issubset(backend.configuration().basis_gates):
         return []
     if not isinstance(layouts[0], list):
