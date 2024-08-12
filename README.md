@@ -28,21 +28,21 @@ is more difficult to integrate that into `transpile()`).
 
 ## Usage
 
-To begin we first import what we need and load our IBM Quantum account.
+To begin we first import what we need.
 
 ```python
 import numpy as np
-from qiskit import *
+from qiskit import QuantumCircuit
 import mapomatic as mm
-
-IBMQ.load_account()
+from qiskit_ibm_provider import IBMProvider
+from qiskit_ibm_runtime import QiskitRuntimeService
 ```
 
-Second we will select a `provider` that has one or more systems of interest in it:
+Second we will select a `channel` that has one or more systems of interest in it:
 
 ```python
 
-provider = IBMQ.get_provider(group='deployed')
+service = QiskitRuntimeService(channel="ibm_quantum")
 ```
 
 We then go through the usual step of making a circuit and calling `transpile` on a given `backend`:
@@ -60,7 +60,7 @@ qc.measure_all()
 Here we use `optimization_level=3` as it is the best overall.  It is also not noise-aware though, and thus can select lousy qubits on which to do a good SWAP mapping
 
 ```python
-backend = provider.get_backend('ibm_auckland')
+backend = service.get_backend('ibm_auckland')
 trans_qc = transpile(qc, backend, optimization_level=3)
 ```
 
@@ -151,7 +151,7 @@ best_qc = transpile(small_qc, backend, initial_layout=scores[0][0])
 Alternatively, it is possible to do the same computation over multiple systems, eg all systems in the provider:
 
 ```python
-backends = provider.backends()
+backends = service.backends()
 
 mm.best_overall_layout(small_qc, backends)
 ```
