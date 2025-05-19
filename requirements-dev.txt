@@ -2,4 +2,4 @@ pytest
 pylint==2.16.2
 pycodestyle
 numpy
-qiskit-ibm-runtime>=0.19
+qiskit-ibm-runtime
