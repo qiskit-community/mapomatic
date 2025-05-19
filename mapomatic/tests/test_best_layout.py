@@ -31,9 +31,11 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
     trans_qc = transpile(qc, FakeLimaV2(), seed_transpiler=102442)
     backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
     res = mm.best_overall_layout(trans_qc, backends, successors=True)
-    expected_res = [([0, 1, 2, 3, 4], 'fake_belem', 0.2251006760340526),
-                    ([0, 1, 2, 3, 4], 'fake_lima', 0.23799533658490646),
-                    ([0, 1, 2, 3, 4], 'fake_quito', 0.41031068269132387)]
+    expected_res = [
+        ([0, 1, 2, 3, 4], "fake_belem", 0.2251006760340526),
+        ([0, 1, 2, 3, 4], "fake_lima", 0.23799533658490646),
+        ([0, 1, 2, 3, 4], "fake_quito", 0.41031068269132387),
+    ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
@@ -57,9 +59,11 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
     small_circ = mm.deflate_circuit(trans_qc)
     backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
     res = mm.best_overall_layout(small_circ, backends, successors=True)
-    expected_res = [([3, 1, 0, 2], 'fake_lima', 0.13133288833556145),
-                    ([0, 1, 2, 3], 'fake_belem', 0.16103780370236487),
-                    ([0, 1, 2, 3], 'fake_quito', 0.29391929118639826)]
+    expected_res = [
+        ([3, 1, 0, 2], "fake_lima", 0.13133288833556145),
+        ([0, 1, 2, 3], "fake_belem", 0.16103780370236487),
+        ([0, 1, 2, 3], "fake_quito", 0.29391929118639826),
+    ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]

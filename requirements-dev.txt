@@ -1,5 +1,3 @@
 pytest
-pylint==2.16.2
-pycodestyle
-numpy
+black
 qiskit-ibm-runtime

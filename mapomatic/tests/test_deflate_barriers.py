@@ -34,16 +34,16 @@ def test_deflate_barriers1():
     small_qc = mm.deflate_circuit(trans_qc)
 
     ans_qc = QuantumCircuit(4)
-    ans_qc.rz(np.pi/2, 3)
+    ans_qc.rz(np.pi / 2, 3)
     ans_qc.sx(3)
-    ans_qc.rz(np.pi/2, 3)
+    ans_qc.rz(np.pi / 2, 3)
     ans_qc.barrier(3)
     ans_qc.cx(3, 2)
     ans_qc.cx(2, 1)
     ans_qc.cx(1, 0)
     ans_qc.barrier()
     # Need to add phase
-    ans_qc.global_phase = np.pi/4
+    ans_qc.global_phase = np.pi / 4
 
     assert small_qc == ans_qc
 
@@ -68,8 +68,8 @@ def test_deflate_barriers3():
     trans_qc = transpile(qc, BACKEND, optimization_level=0)
     small_qc = mm.deflate_circuit(trans_qc)
 
-    qr = QuantumRegister(10, 'q')
-    qc = ClassicalRegister(10, 'c')
+    qr = QuantumRegister(10, "q")
+    qc = ClassicalRegister(10, "c")
     ans_qc = QuantumCircuit(qr, qc)
     ans_qc.barrier()
     ans_qc.measure(range(10), range(10))

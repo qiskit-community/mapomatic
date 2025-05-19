@@ -28,11 +28,14 @@ def test_custom_cost_function():
     trans_qc = transpile(qc, FakeBelemV2(), seed_transpiler=1234)
     small_qc = mm.deflate_circuit(trans_qc)
     backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
-    res = mm.best_overall_layout(small_qc, backends, successors=True,
-                                 cost_function=cost_func)
-    expected_res = [([1, 3, 0], 'fake_lima', 0.118750487848573),
-                    ([1, 3, 0], 'fake_belem', 0.1353608250383157),
-                    ([1, 3, 0], 'fake_quito', 0.17887362578892418)]
+    res = mm.best_overall_layout(
+        small_qc, backends, successors=True, cost_function=cost_func
+    )
+    expected_res = [
+        ([1, 3, 0], "fake_lima", 0.118750487848573),
+        ([1, 3, 0], "fake_belem", 0.1353608250383157),
+        ([1, 3, 0], "fake_quito", 0.17887362578892418),
+    ]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]
@@ -55,42 +58,47 @@ def cost_func(circ, layouts, backend):
     props = backend.properties()
     dt = backend.configuration().dt
     num_qubits = backend.configuration().num_qubits
-    t1s = [props.qubit_property(qq, 'T1')[0] for qq in range(num_qubits)]
-    t2s = [props.qubit_property(qq, 'T2')[0] for qq in range(num_qubits)]
+    t1s = [props.qubit_property(qq, "T1")[0] for qq in range(num_qubits)]
+    t2s = [props.qubit_property(qq, "T2")[0] for qq in range(num_qubits)]
     for layout in layouts:
-        sch_circ = transpile(circ, backend, initial_layout=layout,
-                             optimization_level=0, scheduling_method='alap')
+        sch_circ = transpile(
+            circ,
+            backend,
+            initial_layout=layout,
+            optimization_level=0,
+            scheduling_method="alap",
+        )
         error = 0
         fid = 1
         touched = set()
         for item in sch_circ._data:
-            if item[0].name == 'cx':
+            if item[0].name == "cx":
                 q0 = sch_circ.find_bit(item[1][0]).index
                 q1 = sch_circ.find_bit(item[1][1]).index
-                fid *= (1-props.gate_error('cx', [q0, q1]))
+                fid *= 1 - props.gate_error("cx", [q0, q1])
                 touched.add(q0)
                 touched.add(q1)
 
-            elif item[0].name in ['sx', 'x']:
+            elif item[0].name in ["sx", "x"]:
                 q0 = sch_circ.find_bit(item[1][0]).index
-                fid *= 1-props.gate_error(item[0].name, q0)
+                fid *= 1 - props.gate_error(item[0].name, q0)
                 touched.add(q0)
 
-            elif item[0].name == 'measure':
+            elif item[0].name == "measure":
                 q0 = sch_circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(q0)
+                fid *= 1 - props.readout_error(q0)
                 touched.add(q0)
 
-            elif item[0].name == 'delay':
+            elif item[0].name == "delay":
                 q0 = sch_circ.find_bit(item[1][0]).index
                 # Ignore delays that occur before gates
                 # This assumes you are in ground state and errors
                 # do not occur.
                 if q0 in touched:
                     time = item[0].duration * dt
-                    fid *= 1-idle_error(time, t1s[q0], t2s[q0])
+                    fid *= 1 - idle_error(time, t1s[q0], t2s[q0])
 
-        error = 1-fid
+        error = 1 - fid
         out.append((layout, error))
         return out
 
@@ -105,8 +113,8 @@ def idle_error(time, t1, t2):
         float: Idle error
     """
     t2 = min(t1, t2)
-    rate1 = 1/t1
-    rate2 = 1/t2
-    p_reset = 1-np.exp(-time*rate1)
-    p_z = (1-p_reset)*(1-np.exp(-time*(rate2-rate1)))/2
+    rate1 = 1 / t1
+    rate2 = 1 / t2
+    p_reset = 1 - np.exp(-time * rate1)
+    p_z = (1 - p_reset) * (1 - np.exp(-time * (rate2 - rate1))) / 2
     return p_z + p_reset

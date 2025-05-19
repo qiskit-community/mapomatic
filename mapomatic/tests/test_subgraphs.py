@@ -32,14 +32,16 @@ def test_test_find_all_subsets():
 
     assert len(unique_sets) == 8
 
-    ans_list = [set([1, 2, 4, 0]),
-                set([7, 4, 10, 6]),
-                set([8, 5, 11, 9]),
-                set([12, 10, 13, 15]),
-                set([14, 11, 13, 16]),
-                set([18, 15, 21, 17]),
-                set([19, 16, 22, 20]),
-                set([25, 22, 24, 26])]
+    ans_list = [
+        set([1, 2, 4, 0]),
+        set([7, 4, 10, 6]),
+        set([8, 5, 11, 9]),
+        set([12, 10, 13, 15]),
+        set([14, 11, 13, 16]),
+        set([18, 15, 21, 17]),
+        set([19, 16, 22, 20]),
+        set([25, 22, 24, 26]),
+    ]
 
     for st in unique_sets:
         assert st in ans_list

@@ -52,7 +52,9 @@ def deflate_circuit(input_circ):
         if any(used_active_set):
             ref = getattr(new_qc, item[0].name)
             params = item[0].params
-            qargs = [new_qc.qubits[active_qubit_map[qubit]] for qubit in used_active_set]
+            qargs = [
+                new_qc.qubits[active_qubit_map[qubit]] for qubit in used_active_set
+            ]
             cargs = [new_qc.clbits[active_bit_map[clbit]] for clbit in item[2]]
             ref(*params, *qargs, *cargs)
     new_qc.global_phase = input_circ.global_phase
@@ -110,7 +112,7 @@ def inflate_circuit(input_circ, layout, backend):
         num_qubits = backend.configuration().num_qubits
     new_qc = QuantumCircuit(num_qubits)
     if len(input_circ.cregs) > 1:
-        raise ValueError('Number of measurement registers must <= 1')
+        raise ValueError("Number of measurement registers must <= 1")
     if input_circ.cregs:
         new_qc.add_register(input_circ.cregs[0])
     for item in input_circ.data:
