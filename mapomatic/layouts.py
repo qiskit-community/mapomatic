@@ -29,10 +29,14 @@
 """Circuit manipulation tools"""
 import random
 
-from rustworkx import PyGraph, PyDiGraph, vf2_mapping  # pylint:disable=no-name-in-module
+from rustworkx import (
+    PyGraph,
+    PyDiGraph,
+    vf2_mapping,
+)  # pylint:disable=no-name-in-module
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
-from qiskit.providers.backend import BackendV1, BackendV2
+from qiskit.providers.backend import BackendV2
 
 
 def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
@@ -40,7 +44,7 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list or CouplingMap or BackendV1 or BackendV2): Coupling map or backend instance
+        cmap (list or CouplingMap or BackendV2): Coupling map or backend instance
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
@@ -54,12 +58,10 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
         cmap = CouplingMap(cmap)
     elif isinstance(cmap, CouplingMap):
         pass
-    elif isinstance(cmap, BackendV1):
-        cmap = CouplingMap(cmap.configuration().coupling_map)
     elif isinstance(cmap, BackendV2):
         cmap = cmap.coupling_map
     else:
-        raise TypeError('Invalid cmap input.')
+        raise TypeError("Invalid cmap input.")
 
     dag = circuit_to_dag(circ)
     qubits = dag.qubits
@@ -69,7 +71,9 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
     for node in dag.op_nodes(include_directives=False):
         len_args = len(node.qargs)
         if len_args == 2:
-            interactions.append((qubit_indices[node.qargs[0]], qubit_indices[node.qargs[1]]))
+            interactions.append(
+                (qubit_indices[node.qargs[0]], qubit_indices[node.qargs[1]])
+            )
 
     if strict_direction:
         cm_graph = cmap.graph
@@ -84,7 +88,9 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
         random.Random(seed).shuffle(cm_nodes)
         shuffled_cm_graph = type(cm_graph)()
         shuffled_cm_graph.add_nodes_from(cm_nodes)
-        new_edges = [(cm_nodes[edge[0]], cm_nodes[edge[1]]) for edge in cm_graph.edge_list()]
+        new_edges = [
+            (cm_nodes[edge[0]], cm_nodes[edge[1]]) for edge in cm_graph.edge_list()
+        ]
         shuffled_cm_graph.add_edges_from_no_data(new_edges)
         cm_nodes = [k for k, v in sorted(enumerate(cm_nodes), key=lambda item: item[1])]
         cm_graph = shuffled_cm_graph
@@ -111,7 +117,7 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
     for mapping in mappings:
         # Here we sort in the order that we would use
         # for intial layout
-        temp_list = [None]*circ.num_qubits
+        temp_list = [None] * circ.num_qubits
         for cm_i, im_i in mapping.items():
             key = qubits[im_i]
             val = cm_nodes[cm_i]
@@ -151,8 +157,9 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     """
     if not any(layouts):
         return []
-    circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset',
-                                                      'measure', 'delay'})
+    circuit_gates = set(circ.count_ops()).difference(
+        {"barrier", "reset", "measure", "delay"}
+    )
     if not circuit_gates.issubset(backend.configuration().basis_gates):
         return []
     if not isinstance(layouts[0], list):
@@ -164,8 +171,9 @@ def evaluate_layouts(circ, layouts, backend, cost_function=None):
     return out
 
 
-def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
-                        cost_function=None):
+def best_overall_layout(
+    circ, backends, successors=False, call_limit=int(3e7), cost_function=None
+):
     """Find the best selection of qubits and system to run
     the chosen circuit one.
 
@@ -191,15 +199,17 @@ def best_overall_layout(circ, backends, successors=False, call_limit=int(3e7),
     circ_qubits = circ.num_qubits
     for backend in backends:
         config = backend.configuration()
-        circuit_gates = set(circ.count_ops()).difference({'barrier', 'reset', 'measure'})
+        circuit_gates = set(circ.count_ops()).difference(
+            {"barrier", "reset", "measure"}
+        )
         if not circuit_gates.issubset(backend.configuration().basis_gates):
             continue
         num_qubits = config.num_qubits
         if not config.simulator and circ_qubits <= num_qubits:
-            layouts = matching_layouts(circ, config.coupling_map,
-                                       call_limit=call_limit)
-            layout_and_error = evaluate_layouts(circ, layouts, backend,
-                                                cost_function=cost_function)
+            layouts = matching_layouts(circ, config.coupling_map, call_limit=call_limit)
+            layout_and_error = evaluate_layouts(
+                circ, layouts, backend, cost_function=cost_function
+            )
             if any(layout_and_error):
                 layout = layout_and_error[0][0]
                 error = layout_and_error[0][1]
@@ -231,20 +241,19 @@ def default_cost(circ, layouts, backend):
         error = 0
         fid = 1
         for item in circ._data:
-            if item[0].num_qubits == 2 and item[0].name != 'barrier':
+            if item[0].num_qubits == 2 and item[0].name != "barrier":
                 q0 = circ.find_bit(item[1][0]).index
                 q1 = circ.find_bit(item[1][1]).index
-                fid *= (1-props.gate_error(item[0].name, [layout[q0],
-                                           layout[q1]]))
+                fid *= 1 - props.gate_error(item[0].name, [layout[q0], layout[q1]])
 
-            elif item[0].name in ['sx', 'x']:
+            elif item[0].name in ["sx", "x"]:
                 q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.gate_error(item[0].name, layout[q0])
+                fid *= 1 - props.gate_error(item[0].name, layout[q0])
 
-            elif item[0].name in ['measure', 'reset']:
+            elif item[0].name in ["measure", "reset"]:
                 q0 = circ.find_bit(item[1][0]).index
-                fid *= 1-props.readout_error(layout[q0])
+                fid *= 1 - props.readout_error(layout[q0])
 
-        error = 1-fid
+        error = 1 - fid
         out.append((layout, error))
     return out

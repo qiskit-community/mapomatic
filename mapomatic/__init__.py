@@ -10,23 +10,21 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""MapMan
-"""
+"""MapMan"""
 
 try:
     from .version import version as __version__
 except ImportError:
-    __version__ = '0.0.0'
+    __version__ = "0.0.0"
 
-from .circuits import (deflate_circuit, inflate_circuit, active_bits)
-from .layouts import (best_overall_layout, matching_layouts, evaluate_layouts)
+from .circuits import deflate_circuit, inflate_circuit, active_bits
+from .layouts import best_overall_layout, matching_layouts, evaluate_layouts
 
 
 def about():
-    """The Mapomatic version info function.
-    """
-    print('='*80)
-    print('# Mapomatic version {}'.format(__version__))
-    print('# (C) Copyright IBM 2022.')
-    print('# Paul Nation and Matthew Treinish')
-    print('='*80)
+    """The Mapomatic version info function."""
+    print("=" * 80)
+    print("# Mapomatic version {}".format(__version__))
+    print("# (C) Copyright IBM 2022.")
+    print("# Paul Nation and Matthew Treinish")
+    print("=" * 80)
