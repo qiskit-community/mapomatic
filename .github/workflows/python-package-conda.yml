@@ -30,7 +30,7 @@ jobs:
     - name: Black
       run: |
         pip install -U -r requirements-dev.txt
-        black --check fulqrum
+        black --check mapomatic
     - name: Run tests with pytest
       run: |
         conda install pytest
