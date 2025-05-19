@@ -32,7 +32,7 @@ import random
 from rustworkx import PyGraph, PyDiGraph, vf2_mapping  # pylint:disable=no-name-in-module
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.coupling import CouplingMap
-from qiskit.providers.backend import BackendV1, BackendV2
+from qiskit.providers.backend import BackendV2
 
 
 def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
@@ -40,7 +40,7 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
 
     Parameters:
         circ (QuantumCircuit): Input quantum circuit
-        cmap (list or CouplingMap or BackendV1 or BackendV2): Coupling map or backend instance
+        cmap (list or CouplingMap or BackendV2): Coupling map or backend instance
         strict_direction (bool): Use directed coupling
         call_limit (int): Max number of calls to VF2 mapper
 
@@ -54,8 +54,6 @@ def matching_layouts(circ, cmap, strict_direction=True, call_limit=int(3e7)):
         cmap = CouplingMap(cmap)
     elif isinstance(cmap, CouplingMap):
         pass
-    elif isinstance(cmap, BackendV1):
-        cmap = CouplingMap(cmap.configuration().coupling_map)
     elif isinstance(cmap, BackendV2):
         cmap = cmap.coupling_map
     else:

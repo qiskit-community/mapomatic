@@ -12,7 +12,7 @@
 """Test best mappings"""
 import numpy as np
 from qiskit import transpile, QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit_ibm_runtime.fake_provider import FakeBelem, FakeQuito, FakeLima
+from qiskit_ibm_runtime.fake_provider import FakeBelemV2, FakeQuitoV2, FakeLimaV2
 
 import mapomatic as mm
 
@@ -28,8 +28,8 @@ def test_best_mapping_ghz_state_full_device_multiple_qregs():
     qc.cx(qr_a[0], qr_b[1])
     qc.cx(qr_a[0], qr_b[2])
     qc.measure_all()
-    trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
-    backends = [FakeBelem(), FakeQuito(), FakeLima()]
+    trans_qc = transpile(qc, FakeLimaV2(), seed_transpiler=102442)
+    backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
     res = mm.best_overall_layout(trans_qc, backends, successors=True)
     expected_res = [([0, 1, 2, 3, 4], 'fake_belem', 0.2251006760340526),
                     ([0, 1, 2, 3, 4], 'fake_lima', 0.23799533658490646),
@@ -53,13 +53,13 @@ def test_best_mapping_ghz_state_deflate_multiple_registers():
     qc.cx(qr_a[0], qr_b[1])
     qc.measure(qr_a, cr_b)
     qc.measure(qr_b, cr_a)
-    trans_qc = transpile(qc, FakeLima(), seed_transpiler=102442)
+    trans_qc = transpile(qc, FakeLimaV2(), seed_transpiler=102442)
     small_circ = mm.deflate_circuit(trans_qc)
-    backends = [FakeBelem(), FakeQuito(), FakeLima()]
+    backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
     res = mm.best_overall_layout(small_circ, backends, successors=True)
-    expected_res = [([0, 1, 3, 2], 'fake_lima', 0.13133288833556145),
-                    ([2, 1, 0, 3], 'fake_belem', 0.16103780370236487),
-                    ([3, 1, 2, 0], 'fake_quito', 0.29391929118639826)]
+    expected_res = [([3, 1, 0, 2], 'fake_lima', 0.13133288833556145),
+                    ([0, 1, 2, 3], 'fake_belem', 0.16103780370236487),
+                    ([0, 1, 2, 3], 'fake_quito', 0.29391929118639826)]
     for index, expected in enumerate(expected_res):
         assert res[index][0] == expected[0]
         assert res[index][1] == expected[1]

@@ -12,11 +12,11 @@
 """Tests for inflating circuits"""
 
 from qiskit import QuantumCircuit, transpile
-from qiskit_ibm_runtime.fake_provider import FakeMontreal
+from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 import mapomatic as mm
 
-BACKEND = FakeMontreal()
+BACKEND = FakeMontrealV2()
 
 
 def test_inflate1():

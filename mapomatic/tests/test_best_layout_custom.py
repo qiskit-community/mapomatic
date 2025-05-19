@@ -12,7 +12,7 @@
 """Test best mappings"""
 import numpy as np
 from qiskit import transpile, QuantumCircuit
-from qiskit_ibm_runtime.fake_provider import FakeBelem, FakeQuito, FakeLima
+from qiskit_ibm_runtime.fake_provider import FakeBelemV2, FakeQuitoV2, FakeLimaV2
 
 import mapomatic as mm
 
@@ -25,9 +25,9 @@ def test_custom_cost_function():
     qc.cx(0, 2)
     qc.measure_all()
 
-    trans_qc = transpile(qc, FakeBelem(), seed_transpiler=1234)
+    trans_qc = transpile(qc, FakeBelemV2(), seed_transpiler=1234)
     small_qc = mm.deflate_circuit(trans_qc)
-    backends = [FakeBelem(), FakeQuito(), FakeLima()]
+    backends = [FakeBelemV2(), FakeQuitoV2(), FakeLimaV2()]
     res = mm.best_overall_layout(small_qc, backends, successors=True,
                                  cost_function=cost_func)
     expected_res = [([1, 3, 0], 'fake_lima', 0.118750487848573),
