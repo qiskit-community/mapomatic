@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Test layouts in transpile"""
 
-from qiskit_ibm_runtime.fake_provider import FakeMontreal
+from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 from qiskit import transpile
 from qiskit.circuit.library import QuantumVolume
 
@@ -20,7 +20,7 @@ import mapomatic as mm
 
 def test_layouts_transpile():
     """Solution layouts preserve circuit ops"""
-    backend = FakeMontreal()
+    backend = FakeMontrealV2()
     qv_circ = QuantumVolume(5, seed=12345)
     trans_qc = transpile(qv_circ, backend, optimization_level=3)
     small_qc = mm.deflate_circuit(trans_qc)

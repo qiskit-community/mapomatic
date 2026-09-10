@@ -27,11 +27,10 @@ jobs:
         conda config --set always_yes yes --set changeps1 no
         pip install -U -r requirements.txt
         python setup.py install
-    - name: Lint with pylint and pycodestyle
+    - name: Black
       run: |
         pip install -U -r requirements-dev.txt
-        pylint -rn mapomatic
-        pycodestyle --max-line-length=100 mapomatic
+        black --check mapomatic
     - name: Run tests with pytest
       run: |
         conda install pytest

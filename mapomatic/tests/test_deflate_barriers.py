@@ -13,11 +13,11 @@
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
-from qiskit_ibm_runtime.fake_provider import FakeMontreal
+from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 import mapomatic as mm
 
-BACKEND = FakeMontreal()
+BACKEND = FakeMontrealV2()
 
 
 def test_deflate_barriers1():
@@ -34,16 +34,16 @@ def test_deflate_barriers1():
     small_qc = mm.deflate_circuit(trans_qc)
 
     ans_qc = QuantumCircuit(4)
-    ans_qc.rz(np.pi/2, 0)
-    ans_qc.sx(0)
-    ans_qc.rz(np.pi/2, 0)
-    ans_qc.barrier(0)
-    ans_qc.cx(0, 1)
-    ans_qc.cx(1, 2)
-    ans_qc.cx(2, 3)
+    ans_qc.rz(np.pi / 2, 3)
+    ans_qc.sx(3)
+    ans_qc.rz(np.pi / 2, 3)
+    ans_qc.barrier(3)
+    ans_qc.cx(3, 2)
+    ans_qc.cx(2, 1)
+    ans_qc.cx(1, 0)
     ans_qc.barrier()
     # Need to add phase
-    ans_qc.global_phase = np.pi/4
+    ans_qc.global_phase = np.pi / 4
 
     assert small_qc == ans_qc
 
@@ -65,11 +65,11 @@ def test_deflate_barriers3():
     qc = QuantumCircuit(10)
     qc.measure_all()
 
-    trans_qc = transpile(qc, BACKEND)
+    trans_qc = transpile(qc, BACKEND, optimization_level=0)
     small_qc = mm.deflate_circuit(trans_qc)
 
-    qr = QuantumRegister(10, 'q')
-    qc = ClassicalRegister(10, 'c')
+    qr = QuantumRegister(10, "q")
+    qc = ClassicalRegister(10, "c")
     ans_qc = QuantumCircuit(qr, qc)
     ans_qc.barrier()
     ans_qc.measure(range(10), range(10))

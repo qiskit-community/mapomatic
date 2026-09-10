@@ -12,7 +12,7 @@
 """Test best mappings"""
 
 from qiskit import QuantumCircuit
-from qiskit_ibm_runtime.fake_provider import FakeMontreal
+from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 import mapomatic as mm
 
@@ -26,20 +26,22 @@ def test_test_find_all_subsets():
     qc.cx(0, 3)
     qc.measure_all()
 
-    backend = FakeMontreal()
+    backend = FakeMontrealV2()
     mappings = mm.matching_layouts(qc, backend.configuration().coupling_map)
     unique_sets = mm.layouts.unique_subsets(mappings)
 
     assert len(unique_sets) == 8
 
-    ans_list = [set([1, 2, 4, 0]),
-                set([7, 4, 10, 6]),
-                set([8, 5, 11, 9]),
-                set([12, 10, 13, 15]),
-                set([14, 11, 13, 16]),
-                set([18, 15, 21, 17]),
-                set([19, 16, 22, 20]),
-                set([25, 22, 24, 26])]
+    ans_list = [
+        set([1, 2, 4, 0]),
+        set([7, 4, 10, 6]),
+        set([8, 5, 11, 9]),
+        set([12, 10, 13, 15]),
+        set([14, 11, 13, 16]),
+        set([18, 15, 21, 17]),
+        set([19, 16, 22, 20]),
+        set([25, 22, 24, 26]),
+    ]
 
     for st in unique_sets:
         assert st in ans_list
