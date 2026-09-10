@@ -28,11 +28,11 @@ is more difficult to integrate that into `transpile()`).
 
 ## Usage
 
-To begin we first import what we need
+To begin we first import what we need:
 
 ```python
 import numpy as np
-from qiskit import *
+from qiskit import QuantumCircuit
 from qiskit_ibm_runtime import QiskitRuntimeService
 import mapomatic as mm
 ```
