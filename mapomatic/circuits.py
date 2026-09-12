@@ -12,6 +12,7 @@
 # pylint: disable=protected-access
 
 """Circuit manipulation tools"""
+
 import numbers
 from qiskit import QuantumCircuit
 

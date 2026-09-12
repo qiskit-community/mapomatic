@@ -27,6 +27,7 @@
 # that they have been altered from the originals.
 
 """Circuit manipulation tools"""
+
 import random
 
 from rustworkx import (

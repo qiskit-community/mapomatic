@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Test best mappings"""
+
 import numpy as np
 from qiskit import transpile, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit_ibm_runtime.fake_provider import FakeBelemV2, FakeQuitoV2, FakeLimaV2
